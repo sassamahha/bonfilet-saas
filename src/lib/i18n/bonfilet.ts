@@ -571,5 +571,8 @@ const TEXTS = {
 } as const;
 
 export function getBonfiletTexts(locale: BonfiletLocale) {
-  return TEXTS[locale];
+  // すべての画面が「全キーが存在する辞書」を前提に参照できるよう、
+  // en をベースに各ロケールの差分を上書きする（未定義キーは en にフォールバック）
+  type BaseTexts = typeof TEXTS.en;
+  return { ...TEXTS.en, ...TEXTS[locale] } as BaseTexts;
 }
