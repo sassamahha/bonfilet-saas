@@ -119,13 +119,13 @@ export async function POST(req: Request) {
           country: countryCode,
           state: stateCode,
           line1: "",
-          line2: null,
+              line2: undefined,
           city: "",
           postal_code: "",
         };
         shippingDetails = {
-          name: null,
-          phone: null,
+              name: undefined,
+              phone: undefined,
           address: shippingAddress,
         };
         console.log("[Webhook] Using fallback shipping address from metadata:", shippingAddress);
