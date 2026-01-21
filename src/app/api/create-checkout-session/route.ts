@@ -91,6 +91,10 @@ export async function POST(req: Request) {
     // URL生成: 英語の場合は /order、それ以外は /{lang}/order
     const langPrefix = lang && lang !== "en" ? `${lang}/` : "";
 
+    // stripe@14.x の型定義が AllowedCountry のユニオン型を要求するため明示キャスト
+    const allowedCountries =
+      ENABLED_COUNTRIES.map((c) => c.code) as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[];
+
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       line_items: [
@@ -109,7 +113,7 @@ export async function POST(req: Request) {
       // 配送可能国を制限（初期対応12カ国のみ）
       // Stripeは大文字のISO 3166-1 alpha-2国コードを要求
       shipping_address_collection: {
-        allowed_countries: ENABLED_COUNTRIES.map((c) => c.code),
+        allowed_countries: allowedCountries,
       },
       // 電話番号を必須入力にする
       phone_number_collection: {
