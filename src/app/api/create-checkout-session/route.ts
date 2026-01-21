@@ -23,7 +23,8 @@ import {
 export const runtime = "nodejs";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string, {
-  apiVersion: "2024-06-20",
+  // NOTE: stripe@14.x の型定義が許可するAPIバージョンに合わせる（Vercel build対策）
+  apiVersion: "2023-10-16",
 });
 
 export async function POST(req: Request) {
