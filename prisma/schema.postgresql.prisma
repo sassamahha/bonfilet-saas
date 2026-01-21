@@ -1,0 +1,85 @@
+// PostgreSQL用のPrismaスキーマ（本番環境用）
+// Supabaseデプロイ時は、このファイルを schema.prisma にリネームするか、
+// または datasource db の provider を "postgresql" に変更してください
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Order {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Stripe情報（内部用、画面には出さない）
+  stripeSessionId String @unique
+
+  // ステータス管理
+  status String @default("PENDING") // PENDING, IN_PRODUCTION, QC, PACKED, SHIPPED
+
+  // 数量・配送情報
+  quantity     Int
+  country      String
+  state        String?
+  zone         String? // FedEx zone
+  tierKg       String? // FedEx tier (0.5, 1, 2, 5, 10)
+
+  // 配送先情報
+  shippingName      String?
+  shippingAddress1  String
+  shippingAddress2 String?
+  shippingCity      String
+  shippingState     String?
+  shippingPostal    String
+  shippingCountry   String
+  shippingPhone     String?
+  customerEmail     String?
+
+  // デザイン情報（JSON形式で保存）
+  designJson String // JSON string containing: text, bgColor, fontColor, backText, backBgColor, backFontColor, enableBack, font
+
+  // 資材・添付ファイル（将来拡張用）
+  assets String? // JSON array of asset URLs
+
+  // 関税同意
+  dutiesAck      Boolean   @default(false)
+  dutiesAckedAt  DateTime?
+
+  // 追跡番号（SHIPPED時に設定）
+  trackingNumber String?
+
+  @@index([stripeSessionId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model Country {
+  id      String  @id @default(cuid())
+  code    String  @unique // ISO 3166-1 alpha-2
+  name    String
+  enabled Boolean @default(false)
+
+  @@index([code])
+  @@index([enabled])
+}
+
+model OrderDraft {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // プレビュー画像（data URL）
+  frontPreviewImage String
+  backPreviewImage  String?
+
+  // 任意：トラブルシュートや将来拡張用（現状は必須ではない）
+  designJson String?
+
+  @@index([createdAt])
+}
+
