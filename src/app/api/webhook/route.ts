@@ -124,8 +124,10 @@ export async function POST(req: Request) {
           postal_code: "",
         };
         shippingDetails = {
+          name: undefined,
+          phone: undefined,
           address: shippingAddress,
-        };
+        } as Stripe.Checkout.Session.ShippingDetails;
         console.log("[Webhook] Using fallback shipping address from metadata:", shippingAddress);
       }
       
