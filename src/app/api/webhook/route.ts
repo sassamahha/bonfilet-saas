@@ -112,20 +112,18 @@ export async function POST(req: Request) {
       if (!shippingAddress) {
         console.warn("[Webhook] Shipping address still not found, using metadata countryCode");
         const countryCode = metadata.countryCode || "US";
-        const stateCode = metadata.stateCode || null;
+        const stateCode = metadata.stateCode || undefined;
         
         // 最小限の配送先情報を構築
         shippingAddress = {
           country: countryCode,
           state: stateCode,
           line1: "",
-              line2: undefined,
+          line2: undefined,
           city: "",
           postal_code: "",
         };
         shippingDetails = {
-              name: undefined,
-              phone: undefined,
           address: shippingAddress,
         };
         console.log("[Webhook] Using fallback shipping address from metadata:", shippingAddress);
