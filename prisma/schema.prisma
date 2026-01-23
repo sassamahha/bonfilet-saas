@@ -5,10 +5,10 @@ generator client {
   provider = "prisma-client-js"
 }
 
-// 本番環境（Supabase）では postgresql に変更
-// ローカル開発では sqlite のまま
+// 本番環境（Supabase）では postgresql を使用
+// ローカル開発でも postgresql を使用（Supabaseの接続URLを設定）
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
