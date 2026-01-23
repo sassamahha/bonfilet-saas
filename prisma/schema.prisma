@@ -8,8 +8,9 @@ generator client {
 // 本番環境（Supabase）では postgresql を使用
 // ローカル開発でも postgresql を使用（Supabaseの接続URLを設定）
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")      // Connection Pooler (6543) 用
+  directUrl = env("DIRECT_URL")        // Direct Connection (5432) 用（Migration用）
 }
 
 model Order {
