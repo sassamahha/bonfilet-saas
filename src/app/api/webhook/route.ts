@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       if (!shippingAddress) {
         console.warn("[Webhook] Shipping address still not found, using metadata countryCode");
         const countryCode = metadata.countryCode || "US";
-        const stateCode = metadata.stateCode || null;
+        const stateCode: string | null = metadata.stateCode || null;
         
         // 最小限の配送先情報を構築
         shippingAddress = {
