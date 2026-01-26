@@ -32,7 +32,7 @@ const TEXTS = {
     currency: "Currency",
     qtyLabel: `Quantity (min ${MIN_QTY})`,
     unit: "Unit",
-    total: "Total (tax incl.)",
+    total: "Total",
     priceBand: "Bands: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Proceed to payment",
     rateNote: (rate: number) =>
@@ -123,7 +123,7 @@ const TEXTS = {
     currency: "通貨",
     qtyLabel: `数量（最小${MIN_QTY}個）`,
     unit: "単価",
-    total: "合計(税込)",
+    total: "合計",
     priceBand: "価格帯: 30〜39 / 40〜49 / 50〜99 / 100〜",
     proceed: "お支払いへ進む",
     rateNote: (rate: number) =>
@@ -214,7 +214,7 @@ const TEXTS = {
     currency: "Moneda",
     qtyLabel: `Cantidad (mín. ${MIN_QTY})`,
     unit: "Precio unitario",
-    total: "Total (IVA incluido)",
+    total: "Total",
     priceBand: "Bandas: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Proceder al pago",
     rateNote: (rate: number) =>
@@ -288,7 +288,7 @@ const TEXTS = {
     currency: "Moeda",
     qtyLabel: `Quantidade (mín. ${MIN_QTY})`,
     unit: "Preço unitário",
-    total: "Total (com impostos)",
+    total: "Total",
     priceBand: "Faixas: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Prosseguir para pagamento",
     rateNote: (rate: number) =>
@@ -362,7 +362,7 @@ const TEXTS = {
     currency: "Devise",
     qtyLabel: `Quantité (min ${MIN_QTY})`,
     unit: "Prix unitaire",
-    total: "Total (TTC)",
+    total: "Total",
     priceBand: "Tranches: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Procéder au paiement",
     rateNote: (rate: number) =>
@@ -436,7 +436,7 @@ const TEXTS = {
     currency: "Währung",
     qtyLabel: `Menge (min. ${MIN_QTY})`,
     unit: "Einzelpreis",
-    total: "Gesamt (inkl. MwSt.)",
+    total: "Gesamt",
     priceBand: "Bänder: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Zur Zahlung",
     rateNote: (rate: number) =>
@@ -510,7 +510,7 @@ const TEXTS = {
     currency: "Valuta",
     qtyLabel: `Quantità (min ${MIN_QTY})`,
     unit: "Prezzo unitario",
-    total: "Totale (IVA incl.)",
+    total: "Totale",
     priceBand: "Fasce: 30–39 / 40–49 / 50–99 / 100+",
     proceed: "Procedi al pagamento",
     rateNote: (rate: number) =>

@@ -42,8 +42,8 @@ export const SHIPPING_MULTIPLIER =
   Number(
     process.env.NEXT_PUBLIC_SHIPPING_MULTIPLIER ??
       process.env.NEXT_PUBLIC_SHIPPING_FACTOR ?? // 旧環境変数名との互換
-      "1.3"
-  ) || 1.3;
+      "1.15"
+  ) || 1.15;
 
 export const SHIPPING_HANDLING_USD =
   Number(process.env.NEXT_PUBLIC_SHIPPING_HANDLING_USD ?? "0");
