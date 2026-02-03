@@ -2,25 +2,29 @@
 // Root page - displays English version of LP
 import Link from "next/link";
 import { getBonfiletTexts } from "@/lib/i18n/bonfilet";
+import ImageSlider from "@/components/ImageSlider";
+import FeatureImage from "@/components/FeatureImage";
 
 export default function RootPage() {
   const t = getBonfiletTexts("en");
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
+      {/* Image Slider Section */}
+      <section className="w-full">
+        <ImageSlider />
+      </section>
+
       {/* Hero Section */}
       <section className="mx-auto max-w-7xl px-4 py-16 sm:py-24">
         <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-slate-900 sm:text-6xl">
-            {t.heroTitle}
-          </h1>
           <p className="mt-6 text-lg leading-8 text-slate-600 sm:text-xl">
             {t.heroSubtitle}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Link
               href="/order"
-              className="rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
+              className="rounded-xl bg-slate-900 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
             >
               {t.startCustomizing}
             </Link>
@@ -36,37 +40,43 @@ export default function RootPage() {
           </h2>
         </div>
         <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">
-          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-4">
+          <dl className="grid max-w-xl grid-cols-1 gap-x-8 gap-y-16 lg:max-w-none lg:grid-cols-3">
+            {/* Column 1: One-Click Buckle */}
             <div className="flex flex-col">
+              <FeatureImage src="/images/connect01.jpg" alt="One-Click Buckle" />
               <dt className="text-base font-semibold leading-7 text-slate-900">
-                {t.features.customText}
+                One-Click Buckle
               </dt>
               <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-slate-600">
-                <p className="flex-auto">{t.features.customTextDesc}</p>
+                <p className="flex-auto">
+                  Put it on. Take it off. Stretchy fabric. One size fits all.
+                </p>
               </dd>
             </div>
+
+            {/* Column 2: Two Sides, Two Messages */}
             <div className="flex flex-col">
+              <FeatureImage src="/images/reversible01.jpg" alt="Two Sides, Two Messages" />
               <dt className="text-base font-semibold leading-7 text-slate-900">
-                {t.features.customColors}
+                Two Sides, Two Messages
               </dt>
               <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-slate-600">
-                <p className="flex-auto">{t.features.customColorsDesc}</p>
+                <p className="flex-auto">
+                  Side A for the world. Side B for you. Fully customizable.
+                </p>
               </dd>
             </div>
+
+            {/* Column 3: Envelope Shipping */}
             <div className="flex flex-col">
+              <FeatureImage src="/images/deliver01.jpg" alt="Envelope Shipping" />
               <dt className="text-base font-semibold leading-7 text-slate-900">
-                {t.features.backSide}
+                Envelope Shipping
               </dt>
               <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-slate-600">
-                <p className="flex-auto">{t.features.backSideDesc}</p>
-              </dd>
-            </div>
-            <div className="flex flex-col">
-              <dt className="text-base font-semibold leading-7 text-slate-900">
-                {t.features.worldwideShipping}
-              </dt>
-              <dd className="mt-1 flex flex-auto flex-col text-base leading-7 text-slate-600">
-                <p className="flex-auto">{t.features.worldwideShippingDesc}</p>
+                <p className="flex-auto">
+                  Ships worldwide for $3. No sizing. No warehouse hassle.
+                </p>
               </dd>
             </div>
           </dl>
