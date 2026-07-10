@@ -99,6 +99,15 @@ export default function Footer() {
               >
                 特定商取引法
               </Link>
+              <span className="text-slate-400">/</span>
+              <a
+                href="https://eidendo.co.jp/"
+                target="_blank"
+                rel="noopener"
+                className="text-slate-600 transition hover:text-slate-900"
+              >
+                {currentLocale === "ja" ? "企画・製造：株式会社英伝堂" : "Produced by Eidendo Inc."}
+              </a>
             </div>
 
             {/* Language selector */}
