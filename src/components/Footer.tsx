@@ -69,12 +69,12 @@ export default function Footer() {
                 {currentLocale === "ja" ? "トップ" : "Top"}
               </Link>
               <span className="text-slate-400">/</span>
-              <Link
-                href={currentLocale === "ja" ? "/ja/order" : "/order"}
+              <a
+                href="https://eidendo.co.jp/bonfilet/"
                 className="text-slate-600 transition hover:text-slate-900"
               >
-                {currentLocale === "ja" ? "オーダー" : "Order"}
-              </Link>
+                {currentLocale === "ja" ? "日本向けOEM" : "OEM for Japan"}
+              </a>
             </div>
 
             {/* Legal links */}
@@ -138,4 +138,3 @@ export default function Footer() {
     </footer>
   );
 }
-

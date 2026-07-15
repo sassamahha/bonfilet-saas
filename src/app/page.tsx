@@ -1,9 +1,9 @@
 // src/app/page.tsx
 // Root page - displays English version of LP
-import Link from "next/link";
 import { getBonfiletTexts } from "@/lib/i18n/bonfilet";
 import ImageSlider from "@/components/ImageSlider";
 import FeatureImage from "@/components/FeatureImage";
+import SalesPausedActions from "@/components/SalesPausedActions";
 
 export default function RootPage() {
   const t = getBonfiletTexts("en");
@@ -22,12 +22,7 @@ export default function RootPage() {
             {t.heroSubtitle}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
-              href="/order"
-              className="rounded-xl bg-slate-900 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            >
-              {t.startCustomizing}
-            </Link>
+            <SalesPausedActions locale="en" />
           </div>
         </div>
       </section>
@@ -93,16 +88,10 @@ export default function RootPage() {
             Create your custom Bonfilet with your preferred text and colors.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
-              href="/order"
-              className="rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            >
-              {t.startCustomizing}
-            </Link>
+            <SalesPausedActions locale="en" compact />
           </div>
         </div>
       </section>
     </main>
   );
 }
-

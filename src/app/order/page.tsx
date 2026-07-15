@@ -1,8 +1,7 @@
 // src/app/order/page.tsx
-import BonfiletDesigner from "@/components/bonfilet/BonfiletDesigner";
+import { redirect } from "next/navigation";
 
 export default function Page() {
-  return <BonfiletDesigner locale="en" />;
+  redirect("/");
 }
-
 

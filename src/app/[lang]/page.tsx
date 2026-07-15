@@ -1,9 +1,9 @@
 // src/app/[lang]/page.tsx
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { resolveBonfiletLocale, getBonfiletTexts } from "@/lib/i18n/bonfilet";
 import ImageSlider from "@/components/ImageSlider";
 import FeatureImage from "@/components/FeatureImage";
+import SalesPausedActions from "@/components/SalesPausedActions";
 
 export default async function Page({
   params,
@@ -20,8 +20,6 @@ export default async function Page({
   const locale = resolveBonfiletLocale(lang);
   const t = getBonfiletTexts(locale);
 
-  const orderPath = locale === "en" ? "/order" : `/${locale}/order`;
-
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Image Slider Section */}
@@ -36,12 +34,7 @@ export default async function Page({
             {t.heroSubtitle}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
-              href={orderPath}
-              className="rounded-xl bg-slate-900 px-8 py-4 text-lg font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            >
-              {t.startCustomizing}
-            </Link>
+            <SalesPausedActions locale={locale} />
           </div>
         </div>
       </section>
@@ -111,12 +104,7 @@ export default async function Page({
               : "Create your custom Bonfilet with your preferred text and colors."}
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
-            <Link
-              href={orderPath}
-              className="rounded-xl bg-slate-900 px-6 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-slate-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900"
-            >
-              {t.startCustomizing}
-            </Link>
+            <SalesPausedActions locale={locale} compact />
           </div>
         </div>
       </section>

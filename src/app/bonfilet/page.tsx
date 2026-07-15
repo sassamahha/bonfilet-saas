@@ -2,6 +2,5 @@
 import { redirect } from "next/navigation";
 
 export default function Page() {
-  redirect("/order");
+  redirect("https://eidendo.co.jp/bonfilet/");
 }
-
