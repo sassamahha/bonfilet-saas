@@ -5,8 +5,8 @@ import "./globals.css";
 import { inter, notoSansJp, notoSerifJp } from "@/lib/fonts";
 
 export const metadata: Metadata = {
-  title: "Bonfilet — Bands for your fans, thin enough to mail",
-  description: "Reversible fabric bands teams and creators hand out to fans. Design with text and colors; ships flat at a flat rate.",
+  title: "Bonfilet — Custom team bands, shipped worldwide",
+  description: "Reversible fabric bands for teams, clubs and events. Design with text and colors; thin enough to ship flat at a flat rate.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

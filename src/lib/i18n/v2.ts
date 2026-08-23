@@ -2,10 +2,10 @@
 const EN = {
   nav: { design: "Design yours", shipsTo: "Ships to", admin: "Admin" },
   hero: {
-    eyebrow: "Bands for your fans",
-    title: "A band for every fan.\nThin enough to mail.",
+    eyebrow: "Custom team bands",
+    title: "One band. Your words. Your colors.",
     subtitle:
-      "Bonfilet is a reversible fabric band teams and creators hand out to their fans. It weighs almost nothing and ships flat — so even a thousand pieces travel in one small parcel.",
+      "Bonfilet is a reversible fabric band for teams, clubs and events. Design it in a minute, order for the whole team — it is thin enough to ship flat, so it is easy to hand out to supporters too.",
     cta: "Start designing",
     secondary: "See how it works",
     alt: "Close-up of two Bonfilet bands with black clasps, navy side out and yellow reverse showing",
@@ -39,8 +39,8 @@ const EN = {
   },
   mail: {
     eyebrow: "Thin enough to mail",
-    title: "A thousand bands. One small parcel.",
-    body: "Each band is a few millimetres thick and weighs a few grams. Orders ship flat from our factory, so shipping stays a flat rate by quantity — the same whether it is 30 pieces or 300.",
+    title: "Thin, light, easy to hand out."
+    body: "A few millimetres thick, a few grams each. Orders ship flat at a flat rate by quantity, and a stack fits in a bag — handy for a team, and just as handy when you want to give some to your fans.",
     alt: "A flat stack of Bonfilet bands next to a small shipping box",
   },
   finalCta: {
@@ -91,10 +91,10 @@ type Texts = typeof EN;
 const JA: Texts = {
   nav: { design: "デザインする", shipsTo: "配送対象国", admin: "管理" },
   hero: {
-    eyebrow: "ファンに配るバンド",
-    title: "ファンに配れる、\n郵送できる薄さのバンド。",
+    eyebrow: "チームのためのカスタムバンド",
+    title: "ひとつのバンドに、\nあなたの言葉と色を。",
     subtitle:
-      "Bonfilet はチームやクリエイターがファンに配るためのリバーシブル布バンド。薄くて軽く、平らに梱包できるので、1000 個でも小さな一箱で届きます。",
+      "Bonfilet はチーム・部活・イベントのためのリバーシブル布バンド。1分でデザインして、チーム分まとめて注文。薄くて平らに送れるので、応援してくれる人に配るのにも向いています。",
     cta: "デザインを始める",
     secondary: "仕組みを見る",
     alt: "黒いバックルの Bonfilet バンド2本のクローズアップ。ネイビーの表面と黄色の裏面が見える",
@@ -128,8 +128,8 @@ const JA: Texts = {
   },
   mail: {
     eyebrow: "郵送できる薄さ",
-    title: "1000 本でも、小さな一箱。",
-    body: "1 本の厚みは数ミリ、重さは数グラム。工場から平らに梱包して出荷するので、送料は数量帯で一律。30 本でも 300 本でも同じ送料です。",
+    title: "薄くて軽い、配りやすい。",
+    body: "厚みは数ミリ、1 本数グラム。平らに梱包して数量帯一律の送料でお届け。まとめてもかさばらないので、チームで使うのはもちろん、ファンへの配り物にもちょうどいいサイズです。",
     alt: "平らに積まれた Bonfilet と小さな配送箱",
   },
   finalCta: {
