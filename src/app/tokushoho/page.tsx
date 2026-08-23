@@ -42,7 +42,7 @@ export default function TokushohoPage() {
               <tr className="border-b border-slate-200 align-top">
                 <th className="bg-slate-50 px-4 py-2 text-left font-semibold">商品代金以外の必要料金</th>
                 <td className="px-4 py-2">
-                  送料（商品ページに表示）、関税・輸入消費税（お届け先国の規定による、お客様負担）
+                  送料および関税・輸入消費税（いずれも注文時に表示・前払い。お届け時の追加請求はありません）
                 </td>
               </tr>
               <tr className="border-b border-slate-200 align-top">
@@ -87,7 +87,7 @@ export default function TokushohoPage() {
         <section className="mt-6 space-y-2 text-sm leading-7 text-slate-700">
           <h2 className="text-lg font-semibold text-slate-900">関税について</h2>
           <p>
-            海外からの発送となるため、お届け先国の関税・輸入消費税が発生する場合があります。これらの費用はお客様のご負担となります。FedExより配達時または配達後に請求される場合があります。
+            海外（中国）からの発送となりますが、お届け先国の関税・輸入消費税は注文時の合計金額に含まれており、当社が前払いで処理します（DDP）。お届け時に FedEx から追加で請求されることはありません。関税の取り扱いが確認できた国のみ配送対象としています。
           </p>
         </section>
 

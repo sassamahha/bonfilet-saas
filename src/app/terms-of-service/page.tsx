@@ -60,8 +60,8 @@ export default function TermsOfServicePage() {
 
           <h3 className="font-semibold text-slate-900">3.2 Pricing</h3>
           <p>
-            All prices are displayed in USD and include the product cost. Shipping costs are calculated separately based
-            on your destination.
+            Prices are shown in the currency set for your destination (JPY or USD). Shipping and prepaid duties are
+            calculated from your destination and quantity and shown before payment.
           </p>
 
           <h3 className="font-semibold text-slate-900">3.3 Payment</h3>
@@ -82,13 +82,13 @@ export default function TermsOfServicePage() {
 
           <h3 className="font-semibold text-slate-900">4.2 Shipping Destinations</h3>
           <p>
-            We currently ship to: United States, Canada, United Kingdom, Australia, New Zealand, Singapore, Hong Kong,
-            Taiwan, Malaysia, Thailand, Vietnam, and Japan.
+            We ship only to the destinations listed on the product page and in the designer. New destinations are added
+            as duty handling is confirmed.
           </p>
 
           <h3 className="font-semibold text-slate-900">4.3 Customs, Duties, and Taxes</h3>
           <p className="font-semibold">
-            IMPORTANT: The displayed price includes shipping but does NOT include:
+            The total shown at checkout includes the product price plus all of the following:
           </p>
           <ul className="list-disc pl-5">
             <li>Import duties</li>
@@ -96,9 +96,9 @@ export default function TermsOfServicePage() {
             <li>Customs/brokerage fees</li>
           </ul>
           <p>
-            These fees are determined by your country&apos;s customs authority and are the responsibility of the
-            recipient. FedEx may collect these fees before, during, or after delivery. By placing an order, you
-            acknowledge and accept responsibility for any customs duties, taxes, and brokerage fees.
+            Duties and taxes are prepaid by us (DDP), so FedEx will not collect any additional fees before, during,
+            or after delivery. Should customs assess an amount above what was prepaid, we absorb the difference —
+            you will never be billed afterwards.
           </p>
         </section>
 

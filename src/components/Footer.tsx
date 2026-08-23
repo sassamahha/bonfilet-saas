@@ -1,138 +1,53 @@
-// src/components/Footer.tsx
-"use client";
-
+// src/components/Footer.tsx — minimal footer: wordmark, legal links, maker, copyright
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { resolveBonfiletLocale } from "@/lib/i18n/bonfilet";
+import { getV2Texts } from "@/lib/i18n/v2";
+import { localePath } from "@/lib/i18n/paths";
 
-// 表示する言語（英語と日本語のみ）
-const DISPLAY_LOCALES = ["en", "ja"] as const;
+export default function Footer({ locale }: { locale: string }) {
+  const t = getV2Texts(locale);
+  const year = new Date().getFullYear();
 
-const LANGUAGE_NAMES: Record<string, string> = {
-  en: "English",
-  ja: "日本語",
-};
-
-export default function Footer() {
-  const pathname = usePathname();
-  
-  // 現在のパスから言語を取得
-  const currentLang = pathname?.startsWith("/") 
-    ? pathname.split("/")[1] 
-    : "en";
-  const currentLocale = resolveBonfiletLocale(currentLang);
-
-  // パスから言語プレフィックスを除去してベースパスを取得
-  const getBasePath = (path: string): string => {
-    if (!path || path === "/") return "/";
-    
-    const segments = path.split("/").filter(Boolean);
-    if (segments.length === 0) return "/";
-    
-    // 最初のセグメントが言語コードかチェック（en, jaのみ）
-    const firstSegment = segments[0];
-    if (firstSegment === "en" || firstSegment === "ja") {
-      // 言語コードの場合は除去
-      const rest = segments.slice(1);
-      return rest.length > 0 ? `/${rest.join("/")}` : "/";
-    }
-    // 言語コードでない場合はそのまま
-    return `/${segments.join("/")}`;
-  };
-
-  const basePath = getBasePath(pathname || "/");
-
-  // 各言語のURLを生成
-  const getLanguageUrl = (lang: string): string => {
-    if (lang === "en") {
-      // 英語の場合は言語プレフィックスなし
-      return basePath;
-    }
-    // その他の言語は言語プレフィックス付き
-    return `/${lang}${basePath === "/" ? "" : basePath}`;
-  };
+  const legal = [
+    // tokushoho is a Japanese legal notice; it only exists at the root path.
+    { href: "/tokushoho", label: t.footer.legal.tokushoho },
+    { href: localePath(locale, "/privacy-policy"), label: t.footer.legal.privacy },
+    { href: localePath(locale, "/terms-of-service"), label: t.footer.legal.terms },
+  ];
 
   return (
-    <footer className="border-t border-slate-200 bg-white">
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-          <div className="text-sm text-slate-600">
-            © {new Date().getFullYear()} Bonfilet. All rights reserved.
-          </div>
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Navigation links */}
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <Link
-                href={currentLocale === "ja" ? "/ja" : "/"}
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                {currentLocale === "ja" ? "トップ" : "Top"}
+    <footer className="mt-auto border-t border-line bg-white">
+      <div className="mx-auto max-w-6xl px-5 py-10 sm:px-8">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <Link
+            href={localePath(locale)}
+            className="text-sm font-semibold tracking-[0.2em] text-ink transition hover:text-ink-2"
+          >
+            BONFILET
+          </Link>
+          <nav aria-label="Legal" className="flex flex-wrap gap-x-5 gap-y-2 text-xs text-ink-2">
+            {legal.map((l) => (
+              <Link key={l.href} href={l.href} className="transition hover:text-ink">
+                {l.label}
               </Link>
-              <span className="text-slate-400">/</span>
-              <a
-                href="https://eidendo.co.jp/bonfilet/"
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                {currentLocale === "ja" ? "日本向けOEM" : "OEM for Japan"}
-              </a>
-            </div>
+            ))}
+          </nav>
+        </div>
 
-            {/* Legal links */}
-            <div className="flex flex-wrap items-center gap-3 text-sm">
-              <Link
-                href={currentLocale === "ja" ? "/ja/privacy-policy" : "/privacy-policy"}
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                {currentLocale === "ja" ? "プライバシーポリシー" : "Privacy Policy"}
-              </Link>
-              <span className="text-slate-400">/</span>
-              <Link
-                href={currentLocale === "ja" ? "/ja/terms-of-service" : "/terms-of-service"}
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                {currentLocale === "ja" ? "利用規約" : "Terms of Service"}
-              </Link>
-              <span className="text-slate-400">/</span>
-              <Link
-                href="/tokushoho"
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                特定商取引法
-              </Link>
-              <span className="text-slate-400">/</span>
-              <a
-                href="https://eidendo.co.jp/"
-                target="_blank"
-                rel="noopener"
-                className="text-slate-600 transition hover:text-slate-900"
-              >
-                {currentLocale === "ja" ? "企画・製造：株式会社英伝堂" : "Produced by Eidendo Inc."}
-              </a>
-            </div>
-
-            {/* Language selector */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm text-slate-600">Language:</span>
-              {DISPLAY_LOCALES.map((lang) => {
-                const isActive = resolveBonfiletLocale(lang) === currentLocale;
-                const url = getLanguageUrl(lang);
-                
-                return (
-                  <Link
-                    key={lang}
-                    href={url}
-                    className={`text-sm transition ${
-                      isActive
-                        ? "font-semibold text-slate-900"
-                        : "text-slate-600 hover:text-slate-900"
-                    }`}
-                  >
-                    {LANGUAGE_NAMES[lang] || lang}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+        <div className="mt-8 flex flex-col gap-2 text-xs text-ink-3 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            {t.footer.madeBy}{" "}
+            <a
+              href="https://eidendo.co.jp/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink-2 transition hover:text-ink"
+            >
+              株式会社英伝堂
+            </a>
+          </p>
+          <p>
+            &copy; {year} Bonfilet. {t.footer.rights}
+          </p>
         </div>
       </div>
     </footer>

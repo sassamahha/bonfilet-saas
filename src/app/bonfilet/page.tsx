@@ -1,6 +1,7 @@
-// src/app/bonfilet/page.tsx
-import { redirect } from "next/navigation";
+import DesignerPage from "@/components/designer/DesignerPage";
+
+export const dynamic = "force-dynamic";
 
 export default function Page() {
-  redirect("https://eidendo.co.jp/bonfilet/");
+  return <DesignerPage locale="en" />;
 }

@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
+/* ---- Design tokens: white / ink / one accent ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg: #ffffff;
+  --bg-muted: #f6f6f4;
+  --ink: #111111;
+  --ink-2: #55555a;
+  --ink-3: #9a9aa0;
+  --line: #e6e6e3;
+  --accent: #ff5a1f; /* bonfire orange */
+  --accent-ink: #ffffff;
+  --radius: 12px;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--bg);
+  --color-bg-muted: var(--bg-muted);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: var(--font-inter), var(--font-noto-jp), system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Primitives ---- */
+.btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40;
+}
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40 bg-ink text-white hover:bg-black;
+}
+.btn-accent {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40 bg-accent text-accent-ink hover:brightness-95;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-40 border border-line bg-white text-ink hover:bg-bg-muted;
+}
+.btn-sm {
+  @apply px-3.5 py-2 text-xs;
+}
+.card {
+  @apply rounded-xl border border-line bg-white;
+}
+.label {
+  @apply mb-1.5 block text-xs font-medium uppercase tracking-wide text-ink-2;
+}
+.input {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink placeholder:text-ink-3 focus:border-ink focus:outline-none;
+}
+.select {
+  @apply w-full rounded-lg border border-line bg-white px-3 py-2.5 text-sm text-ink focus:border-ink focus:outline-none appearance-none pr-9;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2355555a' stroke-width='2'><path d='M6 9l6 6 6-6'/></svg>");
+  background-size: 12px;
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+}
+.swatch {
+  @apply h-8 w-8 cursor-pointer rounded-full border border-line transition hover:scale-105;
+}
+.swatch[data-active="true"] {
+  box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ink);
+}
+.eyebrow {
+  @apply text-xs font-semibold uppercase tracking-[0.18em] text-accent;
+}
+.h1 {
+  @apply text-4xl font-semibold tracking-tight sm:text-5xl lg:text-6xl;
+}
+.h2 {
+  @apply text-2xl font-semibold tracking-tight sm:text-3xl;
+}
+.muted {
+  @apply text-ink-2;
+}
+.pill {
+  @apply inline-flex items-center rounded-full border border-line bg-white px-3 py-1 text-xs font-medium text-ink-2;
 }

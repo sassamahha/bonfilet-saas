@@ -57,7 +57,7 @@ export default function TermsOfServicePage() {
 
           <h3 className="font-semibold text-slate-900">3.2 価格</h3>
           <p>
-            すべての価格はUSDで表示され、商品代金を含みます。送料は配送先に基づいて別途計算されます。
+            価格は配送先に応じた通貨（JPY または USD）で表示されます。送料および前払い関税は配送先と数量から計算し、お支払い前に表示します。
           </p>
 
           <h3 className="font-semibold text-slate-900">3.3 決済</h3>
@@ -77,12 +77,12 @@ export default function TermsOfServicePage() {
 
           <h3 className="font-semibold text-slate-900">4.2 配送先</h3>
           <p>
-            現在、以下の国・地域に配送しています：アメリカ合衆国、カナダ、イギリス、オーストラリア、ニュージーランド、シンガポール、香港、台湾、マレーシア、タイ、ベトナム、日本。
+            配送対象国・地域は商品ページおよびデザイナーの配送先一覧に表示されるものに限ります。対象国は関税の取り扱いが確認でき次第、順次追加します。
           </p>
 
           <h3 className="font-semibold text-slate-900">4.3 関税、税金</h3>
           <p>
-            <span className="font-semibold">重要</span>：表示価格には送料が含まれますが、以下は含まれません：
+            注文時に表示される合計金額には、商品代金に加えて以下がすべて含まれます：
           </p>
           <ul className="list-disc pl-5">
             <li>輸入関税</li>
@@ -90,10 +90,10 @@ export default function TermsOfServicePage() {
             <li>通関・ブローカー手数料</li>
           </ul>
           <p>
-            これらの費用は、お客様の国の税関当局によって決定され、受取人の責任となります。FedExは、配送前、配送中、または配送後にこれらの費用を請求する場合があります。
+            関税・税金は当社が前払いで処理（DDP）するため、お届け時に FedEx から追加で請求されることはありません。
           </p>
           <p>
-            ご注文を確定することで、お客様は関税、税金、ブローカー手数料の責任を承認し、受け入れたものとみなされます。
+            万一、税関当局の判断により前払い額を超える費用が発生した場合も、お客様に追加請求することはありません。
           </p>
         </section>
 

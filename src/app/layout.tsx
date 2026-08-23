@@ -1,23 +1,18 @@
-// src/app/layout.tsx
-// Root layout - provides html/body for all routes
+// src/app/layout.tsx — Root layout
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import "./globals.css";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import { inter, notoSansJp, notoSerifJp } from "@/lib/fonts";
 
-export default function RootLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  // Default to English, but lang will be set dynamically by [lang]/layout if needed
+export const metadata: Metadata = {
+  title: "Bonfilet — Custom team bands, shipped worldwide",
+  description: "Design your own Bonfilet with text and colors. Duties prepaid, delivered by FedEx.",
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <Header />
-        {children}
-        <Footer />
-      </body>
+    <html lang="en" className={[inter.variable, notoSansJp.variable, notoSerifJp.variable].join(" ")}>
+      <body className="flex min-h-screen flex-col">{children}</body>
     </html>
   );
 }
