@@ -39,7 +39,7 @@ const EN = {
   },
   mail: {
     eyebrow: "Thin enough to mail",
-    title: "Thin, light, easy to hand out."
+    title: "Thin, light, easy to hand out.",
     body: "A few millimetres thick, a few grams each. Orders ship flat at a flat rate by quantity, and a stack fits in a bag — handy for a team, and just as handy when you want to give some to your fans.",
     alt: "A flat stack of Bonfilet bands next to a small shipping box",
   },
