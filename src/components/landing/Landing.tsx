@@ -21,7 +21,7 @@ export default function Landing({ locale, countries }: Props) {
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-6">
             <p className="eyebrow">{t.hero.eyebrow}</p>
-            <h1 className="h1 mt-4 max-w-xl text-balance">{t.hero.title}</h1>
+            <h1 className="h1 mt-4 max-w-xl text-balance break-keep whitespace-pre-line">{t.hero.title}</h1>
             <p className="muted mt-6 max-w-lg text-base leading-relaxed sm:text-lg">{t.hero.subtitle}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href={designerHref} className="btn-accent">
