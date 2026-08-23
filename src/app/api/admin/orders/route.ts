@@ -1,69 +1,30 @@
-// src/app/api/admin/orders/route.ts
+// GET /api/admin/orders?page=1&status=PENDING
 import { NextResponse } from "next/server";
-import { requireAdminAuth } from "@/lib/adminAuth";
-import { prisma } from "@/lib/prisma";
+import { desc, eq, sql } from "drizzle-orm";
+import { getDb, schema } from "@/db";
+import { adminRoute } from "@/lib/adminRoute";
 
-export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
-export async function GET(req: Request) {
-  try {
-    // 認証チェック
-    await requireAdminAuth();
+type Status = typeof schema.orders.$inferSelect.status;
 
-    const { searchParams } = new URL(req.url);
-    const limit = Math.min(Number(searchParams.get("limit")) || 50, 100);
-    const skip = Number(searchParams.get("skip")) || 0;
+export const GET = adminRoute(async (req: Request) => {
+  const { searchParams } = new URL(req.url);
+  const page = Math.max(1, Number(searchParams.get("page") ?? 1) || 1);
+  const limit = 50;
+  const status = searchParams.get("status") as Status | null;
+  const db = await getDb();
+  const where = status ? eq(schema.orders.status, status) : undefined;
 
-    // DBから注文一覧を取得
-    const [orders, total] = await Promise.all([
-      prisma.order.findMany({
-        take: limit,
-        skip,
-        orderBy: { createdAt: "desc" },
-      }),
-      prisma.order.count(),
-    ]);
-
-    // 注文データを整形（金額・個人情報は除外）
-    const formattedOrders = orders.map((order) => {
-      const designData = JSON.parse(order.designJson || "{}");
-
-      return {
-        id: order.id,
-        sessionId: order.stripeSessionId,
-        createdAt: Math.floor(order.createdAt.getTime() / 1000), // Unix timestamp
-        status: order.status,
-        quantity: order.quantity,
-        text: designData.text || "",
-        bgColor: designData.bgColor || "",
-        fontColor: designData.fontColor || "",
-        enableBack: designData.enableBack || false,
-        backText: designData.backText || "",
-        backBgColor: designData.backBgColor || "",
-        backFontColor: designData.backFontColor || "",
-        shippingAddress: {
-          line1: order.shippingAddress1,
-          line2: order.shippingAddress2 || "",
-          city: order.shippingCity,
-          state: order.shippingState || "",
-          postal_code: order.shippingPostal,
-          country: order.shippingCountry,
-        },
-      };
-    });
-
-    return NextResponse.json({
-      orders: formattedOrders,
-      total,
-      hasMore: skip + limit < total,
-    });
-  } catch (e: any) {
-    if (e.message === "Unauthorized") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    return NextResponse.json(
-      { error: e?.message ?? "Failed to fetch orders" },
-      { status: 500 }
-    );
-  }
-}
+  const [rows, countRows] = await Promise.all([
+    db
+      .select()
+      .from(schema.orders)
+      .where(where)
+      .orderBy(desc(schema.orders.createdAt))
+      .limit(limit)
+      .offset((page - 1) * limit),
+    db.select({ count: sql<number>`count(*)` }).from(schema.orders).where(where),
+  ]);
+  return NextResponse.json({ orders: rows, total: Number(countRows[0]?.count ?? 0), page, limit });
+});

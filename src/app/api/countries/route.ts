@@ -1,25 +1,30 @@
-// src/app/api/countries/route.ts
+// GET /api/countries?campaign=slug — 配送可能国と見積ルール
 import { NextResponse } from "next/server";
-import { ENABLED_COUNTRIES_SORTED } from "@/lib/countryRules";
-import { SUPPORTED_COUNTRY_CODES } from "@/lib/bonfiletShipping";
+import { campaignAllowedCountries, campaignTiers, getOpenCampaign, listShippableCountries } from "@/lib/repo";
+import { getUsdJpyRate } from "@/lib/currency";
+import { getEnv } from "@/db";
+import { MIN_QTY } from "@/lib/bonfiletPricing";
 
-export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function GET() {
-  try {
-    // 固定定数から有効な国を取得し、FedEx対応国だけにフィルタ
-    const filteredCountries = ENABLED_COUNTRIES_SORTED.filter((c) =>
-      SUPPORTED_COUNTRY_CODES.includes(c.code)
-    );
+export async function GET(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const slug = searchParams.get("campaign");
 
-    return NextResponse.json(filteredCountries);
-  } catch (error) {
-    console.error("Error fetching countries:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch countries" },
-      { status: 500 }
-    );
+  let countries = await listShippableCountries();
+  let campaign = null;
+  if (slug) {
+    campaign = await getOpenCampaign(slug);
+    if (!campaign) return NextResponse.json({ error: "campaign not found" }, { status: 404 });
+    const allowed = campaignAllowedCountries(campaign);
+    if (allowed) countries = countries.filter((c) => allowed.includes(c.code));
   }
-}
 
+  const env = await getEnv();
+  return NextResponse.json({
+    countries,
+    tiers: campaignTiers(campaign),
+    minQty: campaign?.minQty ?? MIN_QTY,
+    usdJpyRate: getUsdJpyRate(env as unknown as { USD_TO_JPY_RATE?: string }),
+  });
+}

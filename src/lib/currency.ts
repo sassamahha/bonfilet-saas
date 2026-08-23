@@ -1,69 +1,39 @@
-// src/lib/currency.ts
-// 通貨定義と為替レート管理（USD基準）
+// src/lib/currency.ts — 表示通貨。内部は JPY 基準。
+export type CurrencyCode = "jpy" | "usd";
 
-export type CurrencyCode = "usd" | "jpy";
+export const CURRENCIES: Record<CurrencyCode, { symbol: string; stripeMinUnit: number; locale: string }> = {
+  jpy: { symbol: "¥", stripeMinUnit: 1, locale: "ja-JP" },
+  usd: { symbol: "$", stripeMinUnit: 100, locale: "en-US" },
+};
 
-export interface Currency {
-  code: CurrencyCode;
-  name: string;
-  symbol: string;
-  // Stripeの最小単位（1通貨単位あたりの最小額）
-  // 例: USD=100 (cents), JPY=1 (円)
-  stripeMinUnit: number;
+/** 1 USD = N JPY（環境変数 USD_TO_JPY_RATE、デフォルト 150） */
+export function getUsdJpyRate(env?: { USD_TO_JPY_RATE?: string }) {
+  const v = Number(env?.USD_TO_JPY_RATE ?? process.env.USD_TO_JPY_RATE ?? process.env.NEXT_PUBLIC_USD_TO_JPY_RATE);
+  return Number.isFinite(v) && v > 0 ? v : 150;
 }
 
-export const CURRENCIES: Currency[] = [
-  { code: "usd", name: "US Dollar", symbol: "$", stripeMinUnit: 100 },
-  { code: "jpy", name: "Japanese Yen", symbol: "¥", stripeMinUnit: 1 },
-];
-
-/**
- * USD基準の為替レート取得（環境変数から、デフォルト値あり）
- */
-export function getExchangeRate(toCurrency: CurrencyCode): number {
-  if (toCurrency === "usd") return 1.0;
-
-  // 環境変数の命名規則: USD_TO_{CURRENCY}_RATE
-  const envKey = `USD_TO_${toCurrency.toUpperCase()}_RATE`;
-  const envValue =
-    process.env[envKey] ?? process.env[`NEXT_PUBLIC_${envKey}`];
-
-  if (envValue) {
-    const rate = Number(envValue);
-    if (Number.isFinite(rate) && rate > 0) return rate;
-  }
-
-  // デフォルト値（固定レート）
-  const defaultRates: Record<CurrencyCode, number> = {
-    usd: 1.0,
-    jpy: 150.0, // 固定: 150円/USD
-  };
-
-  return defaultRates[toCurrency] ?? 1.0;
+export function toCurrencyCode(s: string | null | undefined): CurrencyCode {
+  return s === "usd" ? "usd" : "jpy";
 }
 
-/**
- * USD金額を指定通貨に変換
- */
-export function convertUSDToCurrency(
-  amountUSD: number,
-  targetCurrency: CurrencyCode
-): number {
-  if (targetCurrency === "usd") return amountUSD;
-  const rate = getExchangeRate(targetCurrency);
-  return amountUSD * rate;
+/** JPY → 表示通貨の数値（USD は小数2桁） */
+export function convertFromJpy(jpy: number, to: CurrencyCode, rate: number) {
+  if (to === "jpy") return Math.round(jpy);
+  return Math.round((jpy / rate) * 100) / 100;
 }
 
-/**
- * Stripe用の最小単位に変換
- */
-export function getStripeAmount(
-  amountInCurrency: number,
-  currency: CurrencyCode
-): number {
-  const currencyInfo = CURRENCIES.find((c) => c.code === currency);
-  const minUnit = currencyInfo?.stripeMinUnit ?? 100;
-  return Math.max(1, Math.round(amountInCurrency * minUnit));
+export function formatMoney(amount: number, code: CurrencyCode) {
+  const c = CURRENCIES[code];
+  return new Intl.NumberFormat(c.locale, {
+    style: "currency",
+    currency: code.toUpperCase(),
+    minimumFractionDigits: code === "jpy" ? 0 : 2,
+    maximumFractionDigits: code === "jpy" ? 0 : 2,
+  }).format(amount);
 }
 
-
+/** Stripe に渡す最小単位の整数 */
+export function toStripeAmount(jpy: number, to: CurrencyCode, rate: number) {
+  const v = convertFromJpy(jpy, to, rate);
+  return Math.round(v * CURRENCIES[to].stripeMinUnit);
+}

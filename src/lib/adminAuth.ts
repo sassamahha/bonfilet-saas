@@ -1,192 +1,118 @@
-// src/lib/adminAuth.ts
+// src/lib/adminAuth.ts — 管理者セッション（HMAC-SHA256 署名 Cookie、Workers 対応）
 import { cookies } from "next/headers";
+import { getEnv } from "@/db";
 
-const ADMIN_EMAILS = (process.env.ADMIN_EMAILS ?? "")
-  .split(",")
-  .map((e) => e.trim())
-  .filter(Boolean);
-
-const ADMIN_SECRET_KEY = process.env.ADMIN_SECRET_KEY ?? "change-me-in-production";
 const COOKIE_NAME = "admin_session";
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7日間
+const COOKIE_MAX_AGE = 60 * 60 * 24 * 7; // 7日
 
-/**
- * メールアドレスが許可リストに含まれているかチェック
- */
-export function isAllowedEmail(email: string): boolean {
-  const normalizedEmail = email.toLowerCase().trim();
-  
-  if (ADMIN_EMAILS.length === 0) {
-    // 環境変数が設定されていない場合は開発モードとして全許可（本番では設定必須）
-    if (process.env.NODE_ENV === "production") {
-      return false;
-    }
-    // 開発環境ではデバッグログを出力
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Admin Auth] No ADMIN_EMAILS set, allowing all in development mode");
-    }
-    return true;
-  }
-  
-  const isAllowed = ADMIN_EMAILS.includes(normalizedEmail);
-  
-  // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Admin Auth] Checking email:", normalizedEmail);
-    console.log("[Admin Auth] Allowed emails:", ADMIN_EMAILS);
-    console.log("[Admin Auth] Is allowed:", isAllowed);
-  }
-  
-  return isAllowed;
+async function secretKey() {
+  const env = await getEnv();
+  const raw = env.ADMIN_SECRET_KEY || process.env.ADMIN_SECRET_KEY || "";
+  if (!raw) throw new Error("ADMIN_SECRET_KEY is not set");
+  return crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(raw),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign", "verify"]
+  );
 }
 
-/**
- * セッショントークンを生成（シンプルな署名付きトークン）
- */
-function generateSessionToken(email: string): string {
-  const timestamp = Date.now();
-  const data = `${email}:${timestamp}`;
-  // 簡易的な署名（本番環境ではより強固な方法を推奨）
-  const signature = Buffer.from(data + ADMIN_SECRET_KEY).toString("base64");
-  return Buffer.from(`${data}:${signature}`).toString("base64");
+function b64url(buf: ArrayBuffer | Uint8Array) {
+  const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
+  let s = "";
+  for (const b of bytes) s += String.fromCharCode(b);
+  return btoa(s).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-/**
- * セッショントークンを検証
- */
-function verifySessionToken(token: string): { email: string; valid: boolean } {
+function fromB64url(s: string) {
+  const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));
+  const bin = atob(s.replace(/-/g, "+").replace(/_/g, "/") + pad);
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
+}
+
+export async function allowedEmails(): Promise<string[]> {
+  const env = await getEnv();
+  const raw = env.ADMIN_EMAILS || process.env.ADMIN_EMAILS || "";
+  return raw
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export async function isAllowedEmail(email: string) {
+  const list = await allowedEmails();
+  if (list.length === 0) return process.env.NODE_ENV !== "production";
+  return list.includes(email.trim().toLowerCase());
+}
+
+async function sign(payload: string) {
+  const key = await secretKey();
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return b64url(sig);
+}
+
+async function createToken(email: string) {
+  const payload = b64url(new TextEncoder().encode(JSON.stringify({ email, exp: Date.now() + COOKIE_MAX_AGE * 1000 })));
+  return `${payload}.${await sign(payload)}`;
+}
+
+async function verifyToken(token: string): Promise<string | null> {
+  const [payload, sig] = token.split(".");
+  if (!payload || !sig) return null;
+  const key = await secretKey();
+  const ok = await crypto.subtle.verify(
+    "HMAC",
+    key,
+    fromB64url(sig),
+    new TextEncoder().encode(payload)
+  );
+  if (!ok) return null;
   try {
-    const decoded = Buffer.from(token, "base64").toString("utf-8");
-    // decoded形式: "email:timestamp:signature"
-    const parts = decoded.split(":");
-    if (parts.length < 3) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Admin Auth] verifySessionToken - Invalid token format");
-      }
-      return { email: "", valid: false };
-    }
-    
-    const email = parts[0];
-    const timestamp = parts[1];
-    const signature = parts.slice(2).join(":"); // 署名部分（:が含まれる可能性があるため）
-    const data = `${email}:${timestamp}`;
-    
-    // デバッグ用（開発環境のみ）
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Admin Auth] verifySessionToken - Email:", email);
-      console.log("[Admin Auth] verifySessionToken - Data:", data);
-      console.log("[Admin Auth] verifySessionToken - Signature exists:", !!signature);
-    }
-    
-    if (!email || !signature) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Admin Auth] verifySessionToken - Missing email or signature");
-      }
-      return { email: "", valid: false };
-    }
-
-    const expectedSignature = Buffer.from(data + ADMIN_SECRET_KEY).toString("base64");
-    if (signature !== expectedSignature) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Admin Auth] verifySessionToken - Signature mismatch");
-        console.log("[Admin Auth] verifySessionToken - Expected:", expectedSignature.substring(0, 30) + "...");
-        console.log("[Admin Auth] verifySessionToken - Got:", signature.substring(0, 30) + "...");
-      }
-      return { email: "", valid: false };
-    }
-    
-    if (!isAllowedEmail(email)) {
-      if (process.env.NODE_ENV === "development") {
-        console.log("[Admin Auth] verifySessionToken - Email not allowed:", email);
-      }
-      return { email: "", valid: false };
-    }
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Admin Auth] verifySessionToken - Token valid for:", email);
-    }
-    return { email, valid: true };
-  } catch (e: any) {
-    if (process.env.NODE_ENV === "development") {
-      console.log("[Admin Auth] verifySessionToken - Error:", e?.message ?? String(e));
-    }
-    return { email: "", valid: false };
+    const data = JSON.parse(new TextDecoder().decode(fromB64url(payload)));
+    if (typeof data.email !== "string" || typeof data.exp !== "number") return null;
+    if (Date.now() > data.exp) return null;
+    return data.email;
+  } catch {
+    return null;
   }
 }
 
-/**
- * セッションCookieを設定
- */
-export async function setAdminSession(email: string): Promise<void> {
-  const cookieStore = await cookies();
-  const token = generateSessionToken(email);
-  
-  // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Admin Auth] setAdminSession - Setting cookie:", COOKIE_NAME);
-    console.log("[Admin Auth] setAdminSession - Token length:", token.length);
-  }
-  
-  cookieStore.set(COOKIE_NAME, token, {
+export async function setAdminSession(email: string) {
+  const token = await createToken(email);
+  const store = await cookies();
+  store.set(COOKIE_NAME, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: COOKIE_MAX_AGE,
     path: "/",
   });
-  
-  // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development") {
-    const verifyCookie = cookieStore.get(COOKIE_NAME);
-    console.log("[Admin Auth] setAdminSession - Cookie set successfully:", !!verifyCookie);
-  }
 }
 
-/**
- * セッションCookieを削除
- */
-export async function clearAdminSession(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete(COOKIE_NAME);
+export async function clearAdminSession() {
+  const store = await cookies();
+  store.delete(COOKIE_NAME);
 }
 
-/**
- * 現在のセッションを取得（認証チェック）
- */
-export async function getAdminSession(): Promise<{ email: string; valid: boolean }> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(COOKIE_NAME)?.value;
-  
-  // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Admin Auth] getAdminSession - Cookie name:", COOKIE_NAME);
-    console.log("[Admin Auth] getAdminSession - Token exists:", !!token);
-    console.log("[Admin Auth] getAdminSession - Token value:", token ? token.substring(0, 20) + "..." : "none");
-    const allCookies = cookieStore.getAll();
-    console.log("[Admin Auth] getAdminSession - All cookies:", allCookies.map(c => c.name));
-  }
-  
-  if (!token) {
-    return { email: "", valid: false };
-  }
-  return verifySessionToken(token);
+export async function getAdminEmail(): Promise<string | null> {
+  const store = await cookies();
+  const token = store.get(COOKIE_NAME)?.value;
+  if (!token) return null;
+  const email = await verifyToken(token);
+  if (!email) return null;
+  return (await isAllowedEmail(email)) ? email : null;
 }
 
-/**
- * APIルートで使用する認証チェック関数
- */
-export async function requireAdminAuth(): Promise<{ email: string }> {
-  const session = await getAdminSession();
-  
-  // デバッグ用（開発環境のみ）
-  if (process.env.NODE_ENV === "development") {
-    console.log("[Admin Auth] requireAdminAuth - Session valid:", session.valid);
-    console.log("[Admin Auth] requireAdminAuth - Email:", session.email);
-  }
-  
-  if (!session.valid) {
-    throw new Error("Unauthorized");
-  }
-  return { email: session.email };
+export async function requireAdmin() {
+  const email = await getAdminEmail();
+  if (!email) throw new AdminAuthError();
+  return email;
 }
 
+export class AdminAuthError extends Error {
+  constructor() {
+    super("Unauthorized");
+    this.name = "AdminAuthError";
+  }
+}

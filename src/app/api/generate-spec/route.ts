@@ -1,107 +1,54 @@
-// src/app/api/generate-spec/route.ts
+// GET /api/generate-spec?order_id=... — 仕様書 HTML（管理者のみ）
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
+import { eq } from "drizzle-orm";
+import { getDb, schema } from "@/db";
 import { generateSpecHTML, type SpecData } from "@/lib/bonfiletSpecTemplate";
+import { getAdminEmail } from "@/lib/adminAuth";
 
-export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET(req: Request) {
-  try {
-    const { searchParams } = new URL(req.url);
-    const sessionId = searchParams.get("session_id");
-    const format = searchParams.get("format") || "html";
-
-    if (!sessionId) {
-      return NextResponse.json(
-        { error: "session_id required" },
-        { status: 400 }
-      );
-    }
-
-    // DBから注文情報を取得
-    const order = await prisma.order.findUnique({
-      where: { stripeSessionId: sessionId },
-    });
-
-    if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
-    }
-
-    // デザイン情報をパース
-    const designData = JSON.parse(order.designJson || "{}");
-    const text = designData.text || "";
-    const bgColor = designData.bgColor || "#cccccc";
-    const fontColor = designData.fontColor || "#000000";
-    const backText = designData.backText || "";
-    const backBgColor = designData.backBgColor || "";
-    const backFontColor = designData.backFontColor || "";
-    const enableBack = designData.enableBack || false;
-    const font = designData.font || "inter";
-
-    // 配送先情報を整形
-    const shippingAddress = {
-      line1: order.shippingAddress1,
-      line2: order.shippingAddress2 || "",
-      city: order.shippingCity,
-      state: order.shippingState || "",
-      postal_code: order.shippingPostal,
-      country: order.shippingCountry,
-    };
-
-    // プレビュー画像（Order.assetsから取得）
-    let frontPreviewImage: string | undefined = undefined;
-    let backPreviewImage: string | undefined = undefined;
-    if (order.assets) {
-      try {
-        const assets = JSON.parse(order.assets) as string[];
-        if (assets?.[0]) frontPreviewImage = assets[0];
-        if (assets?.[1]) backPreviewImage = assets[1];
-      } catch (e) {
-        console.error("[Generate Spec] Failed to parse order.assets");
-      }
-    }
-
-    const specData: SpecData = {
-      frontPreviewImage,
-      backPreviewImage: enableBack ? backPreviewImage : undefined,
-      text,
-      backText: enableBack && backText ? backText : undefined,
-      bgColor,
-      fontColor,
-      backBgColor: enableBack && backBgColor ? backBgColor : undefined,
-      backFontColor: enableBack && backFontColor ? backFontColor : undefined,
-      font: font,
-      quantity: order.quantity,
-      customerName: order.shippingName || undefined,
-      customerEmail: order.customerEmail || undefined,
-      shippingName: order.shippingName || undefined,
-      shippingPhone: order.shippingPhone || undefined,
-      shippingAddress: shippingAddress,
-    };
-
-    if (format === "pdf") {
-      // PDF生成は後で実装（puppeteerが必要）
-      // 現時点ではHTMLを返す
-      const html = generateSpecHTML(specData);
-      return new NextResponse(html, {
-        headers: {
-          "Content-Type": "text/html",
-        },
-      });
-    }
-
-    // HTML形式で返す
-    const html = generateSpecHTML(specData);
-    return new NextResponse(html, {
-      headers: {
-        "Content-Type": "text/html",
-      },
-    });
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message ?? "spec generation error" },
-      { status: 500 }
-    );
+  if (!(await getAdminEmail())) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-}
+  const { searchParams } = new URL(req.url);
+  const orderId = searchParams.get("order_id");
+  if (!orderId) return NextResponse.json({ error: "order_id required" }, { status: 400 });
 
+  const db = await getDb();
+  const order = await db.query.orders.findFirst({ where: eq(schema.orders.id, orderId) });
+  if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
+
+  const d = JSON.parse(order.designJson || "{}");
+  const keys = order.previewKeysJson ? (JSON.parse(order.previewKeysJson) as { front?: string; back?: string }) : {};
+  const assetUrl = (k?: string) => (k ? `/api/assets/${k}` : undefined);
+
+  const spec: SpecData = {
+    frontPreviewImage: assetUrl(keys.front),
+    backPreviewImage: d.enableBack ? assetUrl(keys.back) : undefined,
+    text: d.text ?? "",
+    backText: d.enableBack ? d.backText : undefined,
+    bgColor: d.bgColor ?? "#cccccc",
+    fontColor: d.fontColor ?? "#000000",
+    backBgColor: d.enableBack ? d.backBgColor : undefined,
+    backFontColor: d.enableBack ? d.backFontColor : undefined,
+    font: d.font ?? "inter",
+    quantity: order.quantity,
+    customerName: order.shippingName ?? undefined,
+    customerEmail: order.customerEmail ?? undefined,
+    shippingName: order.shippingName ?? undefined,
+    shippingPhone: order.shippingPhone ?? undefined,
+    shippingAddress: {
+      line1: order.shippingAddress1 ?? "",
+      line2: order.shippingAddress2 ?? "",
+      city: order.shippingCity ?? "",
+      state: order.shippingState ?? "",
+      postal_code: order.shippingPostal ?? "",
+      country: order.shippingCountry ?? order.country,
+    },
+  };
+
+  return new NextResponse(generateSpecHTML(spec, { showPrintButton: true }), {
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
+}

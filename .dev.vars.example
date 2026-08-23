@@ -1,0 +1,5 @@
+STRIPE_SECRET_KEY=sk_test_xxx
+STRIPE_WEBHOOK_SECRET=whsec_xxx
+ADMIN_EMAILS=you@example.com
+ADMIN_SECRET_KEY=change-me
+NEXT_PUBLIC_APP_URL=http://localhost:3000
