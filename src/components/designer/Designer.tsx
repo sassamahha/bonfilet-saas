@@ -301,13 +301,26 @@ export default function Designer({
             <dl className="space-y-2 text-sm">
               <Row k={`${t.unit} × ${quote.quantity}`} v={money(quote.unitJpy + quote.backAdditionJpy)} muted />
               <Row k={t.product} v={money(quote.subtotalJpy)} />
-              <Row k={t.shipping} v={money(quote.shippingJpy)} />
-              <Row k={t.duties} v={money(quote.dutiesJpy)} />
+              <Row k={t.shipping} v={money(quote.shippingJpy + quote.dutiesJpy)} />
               <div className="my-2 border-t border-line" />
               <Row k={t.total} v={money(quote.totalJpy)} strong />
             </dl>
           ) : (
             <p className="text-sm text-ink-3">{t.preparing}</p>
+          )}
+          {rule && rule.shipping.length > 0 && (
+            <p className="mt-3 text-xs text-ink-3">
+              {t.bands}:{" "}
+              {rule.shipping.map((b, i) => {
+                const from = i === 0 ? minQty : rule.shipping[i - 1].upToQty + 1;
+                const to = i === rule.shipping.length - 1 ? "" : String(b.upToQty);
+                return (
+                  <span key={b.upToQty} className="mr-2 whitespace-nowrap tabular-nums">
+                    {from}–{to} {money(b.jpy)}
+                  </span>
+                );
+              })}
+            </p>
           )}
           <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-2">
             <CheckIcon /> {t.noSurprise}

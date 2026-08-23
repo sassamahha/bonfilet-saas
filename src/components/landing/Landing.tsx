@@ -110,6 +110,27 @@ export default function Landing({ locale, countries }: Props) {
         </div>
       </section>
 
+      {/* Thin enough to mail */}
+      <section className="border-t border-line bg-bg-muted">
+        <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-16 sm:px-8 sm:py-24 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <p className="eyebrow">{t.mail.eyebrow}</p>
+            <h2 className="h2 mt-3 text-balance">{t.mail.title}</h2>
+            <p className="muted mt-4 text-base leading-relaxed">{t.mail.body}</p>
+          </div>
+          <div className="lg:col-span-7">
+            <img
+              src="/images/deliver01.jpg"
+              width={1184}
+              height={864}
+              alt={t.mail.alt}
+              loading="lazy"
+              className="w-full rounded-xl border border-line object-cover"
+            />
+          </div>
+        </div>
+      </section>
+
       {/* Ships to */}
       <section className="border-t border-line">
         <div className="mx-auto max-w-6xl px-5 py-16 sm:px-8 sm:py-24">
