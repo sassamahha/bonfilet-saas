@@ -2,7 +2,7 @@
 const EN = {
   nav: { design: "Design yours", shipsTo: "Ships to", admin: "Admin" },
   hero: {
-    eyebrow: "Custom team bands",
+    eyebrow: "One Message, One Thread",
     title: "One band. Your words. Your colors.",
     subtitle:
       "Bonfilet is a reversible fabric band for teams, clubs and events. Design it in a minute, order for the whole team — it is thin enough to ship flat, so it is easy to hand out to supporters too.",
@@ -96,7 +96,7 @@ type Texts = typeof EN;
 const JA: Texts = {
   nav: { design: "デザインする", shipsTo: "配送対象国", admin: "管理" },
   hero: {
-    eyebrow: "チームのためのカスタムバンド",
+    eyebrow: "One Message, One Thread",
     title: "ひとつのバンドに、\nあなたの言葉と色を。",
     subtitle:
       "Bonfilet はチーム・部活・イベントのためのリバーシブル布バンド。1分でデザインして、チーム分まとめて注文。薄くて平らに送れるので、応援してくれる人に配るのにも向いています。",
