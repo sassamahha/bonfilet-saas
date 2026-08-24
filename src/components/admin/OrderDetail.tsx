@@ -241,7 +241,7 @@ function Preview({ label, keyName }: { label: string; keyName?: string }) {
           <img
             src={`/api/assets/${keyName}`}
             alt={`${label}プレビュー`}
-            className="w-full rounded-lg border border-line bg-bg-muted object-contain"
+            className="max-h-48 w-full rounded-lg border border-line bg-bg-muted object-contain"
           />
         </a>
       ) : (
