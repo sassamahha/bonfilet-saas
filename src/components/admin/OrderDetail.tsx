@@ -1,13 +1,13 @@
 "use client";
-// src/components/admin/OrderDetail.tsx — 注文詳細（プレビュー・デザイン・金額・住所・ステータス更新）
+// src/components/admin/OrderDetail.tsx — 注文詳細（プレビュー・デザイン・配送先・ステータス更新）
 import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useAdminFetch, errorMessage } from "./useAdminFetch";
-import { ORDER_STATUSES, STATUS_LABEL, type CampaignRow, type DesignJson, type OrderRow } from "./types";
-import { charged, dateTime, jpy, safeParse } from "./format";
+import { ORDER_STATUSES, STATUS_LABEL, type DesignJson, type OrderDetailRow } from "./types";
+import { dateTime, safeParse } from "./format";
 import { ColorChip, Notice, PageHeader, Row, StatusPill } from "./ui";
 
-type Resp = { order: OrderRow; campaign: CampaignRow | null };
+type Resp = { order: OrderDetailRow };
 
 export function OrderDetail({ id }: { id: string }) {
   const api = useAdminFetch();
@@ -18,6 +18,8 @@ export function OrderDetail({ id }: { id: string }) {
   const [tracking, setTracking] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [purging, setPurging] = useState(false);
+  const [purgeMsg, setPurgeMsg] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
@@ -44,9 +46,7 @@ export function OrderDetail({ id }: { id: string }) {
         json: { status, trackingNumber: tracking },
       });
       setSaveMsg({ kind: "ok", text: "保存しました" });
-      setData((d) =>
-        d ? { ...d, order: { ...d.order, status: status as OrderRow["status"], trackingNumber: tracking || null } } : d
-      );
+      setData((d) => (d ? { ...d, order: { ...d.order, status, trackingNumber: tracking || null } } : d));
     } catch (err) {
       setSaveMsg({ kind: "error", text: errorMessage(err) });
     } finally {
@@ -54,10 +54,23 @@ export function OrderDetail({ id }: { id: string }) {
     }
   }
 
+  async function purgePii() {
+    if (!window.confirm("発送先情報・氏名・電話番号を完全に削除します。元に戻せません。よろしいですか？")) return;
+    setPurging(true);
+    setPurgeMsg(null);
+    try {
+      await api(`/api/admin/orders/${encodeURIComponent(id)}/purge-pii`, { method: "POST" });
+      window.location.reload();
+    } catch (err) {
+      setPurgeMsg(errorMessage(err));
+      setPurging(false);
+    }
+  }
+
   if (error) return <Notice kind="error">{error}</Notice>;
   if (!data) return <p className="text-sm text-ink-3">読み込み中…</p>;
 
-  const { order: o, campaign } = data;
+  const { order: o } = data;
   const design = safeParse<DesignJson>(o.designJson, {});
   const previews = safeParse<{ front?: string; back?: string }>(o.previewKeysJson, {});
 
@@ -124,28 +137,6 @@ export function OrderDetail({ id }: { id: string }) {
             </div>
           </section>
 
-          <section className="card p-4">
-            <h2 className="mb-3 text-sm font-semibold">数量・金額</h2>
-            <div className="grid gap-x-8 sm:grid-cols-2">
-              <div>
-                <Row label="数量">{o.quantity.toLocaleString()} 個</Row>
-                <Row label="単価">{jpy(o.unitJpy)}</Row>
-                <Row label="裏面追加">{jpy(o.backAdditionJpy)}</Row>
-                <Row label="小計">{jpy(o.subtotalJpy)}</Row>
-              </div>
-              <div>
-                <Row label="送料">{jpy(o.shippingJpy)}</Row>
-                <Row label="関税">{jpy(o.dutiesJpy)}</Row>
-                <Row label="合計 (JPY)">
-                  <strong>{jpy(o.totalJpy)}</strong>
-                </Row>
-                <Row label="Stripe 課金額">
-                  {charged(o.chargedCurrency, o.chargedAmount)}
-                  <span className="ml-1 text-ink-3">(表示: {o.currencyDisplay.toUpperCase()})</span>
-                </Row>
-              </div>
-            </div>
-          </section>
         </div>
 
         {/* 右: ステータス更新 + 配送先 + メタ */}
@@ -186,42 +177,42 @@ export function OrderDetail({ id }: { id: string }) {
 
           <section className="card p-4">
             <h2 className="mb-3 text-sm font-semibold">配送先</h2>
-            <address className="space-y-0.5 text-sm not-italic">
-              <div className="font-medium">{o.shippingName ?? "-"}</div>
-              <div>{o.shippingAddress1}</div>
-              {o.shippingAddress2 ? <div>{o.shippingAddress2}</div> : null}
-              <div>
-                {[o.shippingCity, o.shippingState, o.shippingPostal].filter(Boolean).join(", ")}
-              </div>
-              <div>{o.shippingCountry ?? o.country}</div>
-              {o.shippingPhone ? <div className="text-ink-2">TEL {o.shippingPhone}</div> : null}
-              <div className="pt-1">
-                {o.customerEmail ? (
-                  <a href={`mailto:${o.customerEmail}`} className="text-ink-2 hover:underline">
-                    {o.customerEmail}
-                  </a>
-                ) : (
-                  <span className="text-ink-3">メールなし</span>
-                )}
-              </div>
-            </address>
+            {o.shippingAddress1 == null ? (
+              <p className="text-sm text-ink-3">消去済み</p>
+            ) : (
+              <address className="space-y-0.5 text-sm not-italic">
+                <div className="font-medium">{o.shippingName ?? "-"}</div>
+                <div>{o.shippingAddress1}</div>
+                {o.shippingAddress2 ? <div>{o.shippingAddress2}</div> : null}
+                <div>
+                  {[o.shippingCity, o.shippingState, o.shippingPostal].filter(Boolean).join(", ")}
+                </div>
+                <div>{o.shippingCountry ?? o.country}</div>
+                {o.shippingPhone ? <div className="text-ink-2">TEL {o.shippingPhone}</div> : null}
+              </address>
+            )}
+            <div className="mt-3 border-t border-line pt-3">
+              <button
+                type="button"
+                className="btn-ghost btn-sm w-full"
+                disabled={o.status !== "SHIPPED" || purging}
+                onClick={purgePii}
+              >
+                {purging ? "消去中…" : "個人情報を消去"}
+              </button>
+              <p className="mt-1 text-xs text-ink-3">配送が完了した注文は個人情報を消去してください</p>
+              {purgeMsg ? (
+                <div className="mt-2">
+                  <Notice kind="error">{purgeMsg}</Notice>
+                </div>
+              ) : null}
+            </div>
           </section>
 
           <section className="card p-4">
             <h2 className="mb-3 text-sm font-semibold">情報</h2>
             <Row label="国">{o.country}</Row>
-            <Row label="キャンペーン">
-              {campaign ? (
-                <Link href="/admin/campaigns" className="hover:underline">
-                  {campaign.name} <span className="text-ink-3">/{campaign.slug}</span>
-                </Link>
-              ) : (
-                <span className="text-ink-3">なし</span>
-              )}
-            </Row>
-            <Row label="Stripe Session">
-              <span className="font-mono text-xs">{o.stripeSessionId}</span>
-            </Row>
+            <Row label="数量">{o.quantity.toLocaleString()} 個</Row>
             <Row label="作成">{dateTime(o.createdAt)}</Row>
             <Row label="更新">{dateTime(o.updatedAt)}</Row>
           </section>

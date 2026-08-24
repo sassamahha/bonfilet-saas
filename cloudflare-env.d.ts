@@ -8,4 +8,5 @@ interface CloudflareEnv {
   STRIPE_WEBHOOK_SECRET: string;
   ADMIN_EMAILS: string;
   ADMIN_SECRET_KEY: string;
+  ADMIN_PASSWORD: string;
 }

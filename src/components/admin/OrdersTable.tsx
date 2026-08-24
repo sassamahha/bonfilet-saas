@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAdminFetch, errorMessage } from "./useAdminFetch";
-import { ORDER_STATUSES, STATUS_LABEL, type OrderRow } from "./types";
-import { dateTime, jpy, shortId } from "./format";
+import { ORDER_STATUSES, STATUS_LABEL, type DesignJson, type OrderRow } from "./types";
+import { dateTime, safeParse, shortId } from "./format";
 import { Notice, PageHeader, StatusPill, TD, TH } from "./ui";
 
 type Resp = { orders: OrderRow[]; total: number; page: number; limit: number };
@@ -88,22 +88,21 @@ export function OrdersTable() {
               <th className={TH}>ID</th>
               <th className={TH}>国</th>
               <th className={`${TH} text-right`}>数量</th>
-              <th className={`${TH} text-right`}>合計 (JPY)</th>
+              <th className={TH}>デザイン</th>
               <th className={TH}>ステータス</th>
-              <th className={TH}>顧客メール</th>
               <th className={TH}>追跡番号</th>
             </tr>
           </thead>
           <tbody>
             {loading && !data ? (
               <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-ink-3">
+                <td colSpan={7} className="px-3 py-8 text-center text-ink-3">
                   読み込み中…
                 </td>
               </tr>
             ) : data && data.orders.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-3 py-8 text-center text-ink-3">
+                <td colSpan={7} className="px-3 py-8 text-center text-ink-3">
                   注文はありません
                 </td>
               </tr>
@@ -122,11 +121,10 @@ export function OrdersTable() {
                   </td>
                   <td className={TD}>{o.country}</td>
                   <td className={`${TD} text-right tabular-nums`}>{o.quantity.toLocaleString()}</td>
-                  <td className={`${TD} text-right tabular-nums`}>{jpy(o.totalJpy)}</td>
+                  <td className={`${TD} max-w-[200px] truncate`}>{designText(o.designJson)}</td>
                   <td className={TD}>
                     <StatusPill status={o.status} />
                   </td>
-                  <td className={`${TD} max-w-[220px] truncate`}>{o.customerEmail ?? "-"}</td>
                   <td className={`${TD} font-mono text-xs`}>{o.trackingNumber ?? <span className="text-ink-3">-</span>}</td>
                 </tr>
               ))
@@ -155,4 +153,11 @@ export function OrdersTable() {
       ) : null}
     </div>
   );
+}
+
+/** designJson からテキストを取り出して 16 文字程度に切り詰める */
+function designText(designJson: string) {
+  const text = safeParse<DesignJson>(designJson, {}).text ?? "";
+  if (!text) return <span className="text-ink-3">-</span>;
+  return text.length > 16 ? `${text.slice(0, 16)}…` : text;
 }

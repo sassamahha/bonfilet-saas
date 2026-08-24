@@ -40,6 +40,7 @@ npx wrangler secret put STRIPE_SECRET_KEY
 npx wrangler secret put STRIPE_WEBHOOK_SECRET
 npx wrangler secret put ADMIN_EMAILS        # カンマ区切り
 npx wrangler secret put ADMIN_SECRET_KEY    # 長いランダム文字列
+npx wrangler secret put ADMIN_PASSWORD      # 管理画面の共通パスワード（必須。未設定だと本番はログイン不可）
 ```
 任意: `USD_TO_JPY_RATE`（デフォルト 150）は `wrangler.jsonc` の `vars` に追加。
 

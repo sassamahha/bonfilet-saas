@@ -35,7 +35,6 @@ export async function GET(req: Request) {
     font: d.font ?? "inter",
     quantity: order.quantity,
     customerName: order.shippingName ?? undefined,
-    customerEmail: order.customerEmail ?? undefined,
     shippingName: order.shippingName ?? undefined,
     shippingPhone: order.shippingPhone ?? undefined,
     shippingAddress: {

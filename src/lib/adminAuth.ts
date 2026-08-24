@@ -46,6 +46,34 @@ export async function isAllowedEmail(email: string) {
   return list.includes(email.trim().toLowerCase());
 }
 
+/** タイミング攻撃を避けるため HMAC 経由で比較する */
+async function timingSafeEqual(a: string, b: string) {
+  const key = await secretKey();
+  const enc = new TextEncoder();
+  const [ha, hb] = await Promise.all([
+    crypto.subtle.sign("HMAC", key, enc.encode(a)),
+    crypto.subtle.sign("HMAC", key, enc.encode(b)),
+  ]);
+  const ua = new Uint8Array(ha);
+  const ub = new Uint8Array(hb);
+  let diff = 0;
+  for (let i = 0; i < ua.length; i++) diff |= ua[i] ^ ub[i];
+  return diff === 0;
+}
+
+/** メール（許可リスト）+ パスワードの両方を要求する */
+export async function verifyCredentials(email: string, password: string) {
+  if (!(await isAllowedEmail(email))) return false;
+  const env = await getEnv();
+  const expected = env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD || "";
+  if (!expected) {
+    // パスワード未設定は開発時のみ許容
+    return process.env.NODE_ENV !== "production";
+  }
+  if (!password) return false;
+  return timingSafeEqual(password, expected);
+}
+
 async function sign(payload: string) {
   const key = await secretKey();
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));

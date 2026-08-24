@@ -237,7 +237,6 @@ export function generateSpecHTML(
   <div class="section">
     <h2>Shipping Information</h2>
     ${data.shippingName ? `<div class="info-row"><span class="info-label">Name:</span><span>${data.shippingName}</span></div>` : ""}
-    ${data.customerEmail ? `<div class="info-row"><span class="info-label">Email:</span><span>${data.customerEmail}</span></div>` : ""}
     ${data.shippingPhone ? `<div class="info-row"><span class="info-label">Phone:</span><span>${data.shippingPhone}</span></div>` : ""}
     ${shippingAddressText ? `<div class="info-row"><span class="info-label">Address:</span><span>${shippingAddressText}</span></div>` : ""}
   </div>

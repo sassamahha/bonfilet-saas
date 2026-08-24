@@ -18,7 +18,15 @@ export const GET = adminRoute(async (req: Request) => {
 
   const [rows, countRows] = await Promise.all([
     db
-      .select()
+      .select({
+        id: schema.orders.id,
+        createdAt: schema.orders.createdAt,
+        status: schema.orders.status,
+        quantity: schema.orders.quantity,
+        country: schema.orders.country,
+        trackingNumber: schema.orders.trackingNumber,
+        designJson: schema.orders.designJson,
+      })
       .from(schema.orders)
       .where(where)
       .orderBy(desc(schema.orders.createdAt))
