@@ -21,8 +21,7 @@ export default function TermsOfServicePage() {
             <a href="mailto:bonfilet@eidendo.co.jp" className="text-slate-900 underline">
               bonfilet@eidendo.co.jp
             </a>
-            <br />
-            Phone: +81-3-6822-4668
+
           </p>
         </section>
 
@@ -175,8 +174,7 @@ export default function TermsOfServicePage() {
             <a href="mailto:bonfilet@eidendo.co.jp" className="text-slate-900 underline">
               bonfilet@eidendo.co.jp
             </a>
-            <br />
-            Phone: +81-3-6822-4668
+
           </p>
         </section>
       </div>

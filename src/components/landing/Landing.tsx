@@ -62,6 +62,26 @@ export default function Landing({ locale, countries }: Props) {
               className="w-full object-cover"
             />
           </div>
+          <p className="mt-6 text-sm text-ink-2">
+            {t.sns.lead}{" "}
+            <a
+              href="https://www.instagram.com/bonfilet.world"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-ink underline underline-offset-4 hover:text-accent"
+            >
+              {t.sns.instagram}
+            </a>
+            {" / "}
+            <a
+              href="https://jp.pinterest.com/eidendo_oem/bonfilet/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-ink underline underline-offset-4 hover:text-accent"
+            >
+              {t.sns.pinterest}
+            </a>
+          </p>
         </div>
       </section>
 

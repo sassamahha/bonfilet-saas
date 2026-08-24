@@ -21,7 +21,7 @@ export default function TokushohoPage() {
               </tr>
               <tr className="border-b border-slate-200 align-top">
                 <th className="bg-slate-50 px-4 py-2 text-left font-semibold">電話番号</th>
-                <td className="px-4 py-2">03-6822-4668</td>
+                <td className="px-4 py-2">ご請求があれば遅滞なく開示いたします（お問い合わせはメールにて承ります）</td>
               </tr>
               <tr className="border-b border-slate-200 align-top">
                 <th className="bg-slate-50 px-4 py-2 text-left font-semibold">メールアドレス</th>
@@ -58,7 +58,11 @@ export default function TokushohoPage() {
                 <td className="px-4 py-2">
                   注文確定後、通常14~21営業日（製造・国際配送の状況により変動する場合があります）
                   <br />
-                  ※納期指定はご対応していません。
+                  ※納期指定は、事前に
+                  <a href="https://eidendo.co.jp/contact" className="text-slate-900 underline">
+                    こちら
+                  </a>
+                  からご連絡ください。
                 </td>
               </tr>
               <tr className="border-b border-slate-200 align-top">
@@ -102,9 +106,7 @@ export default function TokushohoPage() {
               bonfilet@eidendo.co.jp
             </a>
             <br />
-            Tel: 03-6822-4668
-            <br />
-            営業時間: 平日 10:00〜18:00（土日祝休）
+            対応はメールのみとなります（平日 10:00〜18:00、土日祝休）
           </p>
         </section>
       </div>

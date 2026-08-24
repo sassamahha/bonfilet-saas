@@ -30,6 +30,22 @@ export default function Footer({ locale }: { locale: string }) {
                 {l.label}
               </Link>
             ))}
+            <a
+              href="https://www.instagram.com/bonfilet.world"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-ink"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://jp.pinterest.com/eidendo_oem/bonfilet/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition hover:text-ink"
+            >
+              Pinterest
+            </a>
           </nav>
         </div>
 

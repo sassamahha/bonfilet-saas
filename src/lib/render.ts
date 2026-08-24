@@ -1,6 +1,6 @@
 // src/lib/render.ts — ブラウザ側 Canvas 描画（片面ずつ）
 import { BAND_RECT_RATIO, BONFILET_BASE_IMAGE_PATH } from "./bonfiletConfig";
-import { fontFamilyOf } from "./fonts";
+import { fontFamilyOf, fontWeightOf } from "./fonts";
 
 export interface SideDesign {
   text: string;
@@ -25,8 +25,9 @@ export function loadBaseImage() {
 
 export async function ensureFont(font: string, sample: string) {
   const family = fontFamilyOf(font);
+  const weight = fontWeightOf(font);
   try {
-    await document.fonts.load(`32px ${family}`, sample || "Aa");
+    await document.fonts.load(`${weight} 32px ${family}`, sample || "Aa");
   } catch {
     /* ignore */
   }
@@ -63,13 +64,14 @@ export function drawSide(canvas: HTMLCanvasElement, img: HTMLImageElement, d: Si
   const text = d.text.trim();
   if (!text) return;
   const family = fontFamilyOf(d.font);
+  const weight = fontWeightOf(d.font);
   let fontSize = Math.floor(band.height * 0.55);
   const maxWidth = band.width * 0.9;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillStyle = d.fontColor;
   while (fontSize > 8) {
-    ctx.font = `500 ${fontSize}px ${family}`;
+    ctx.font = `${weight} ${fontSize}px ${family}`;
     if (ctx.measureText(text).width <= maxWidth) break;
     fontSize -= 1;
   }

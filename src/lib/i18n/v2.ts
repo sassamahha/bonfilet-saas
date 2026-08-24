@@ -43,6 +43,11 @@ const EN = {
     body: "A few millimetres thick, a few grams each. Orders ship flat at a flat rate by quantity, and a stack fits in a bag — handy for a team, and just as handy when you want to give some to your fans.",
     alt: "A flat stack of Bonfilet bands next to a small shipping box",
   },
+  sns: {
+    lead: "See real Bonfilets in the wild:",
+    instagram: "Instagram",
+    pinterest: "Pinterest",
+  },
   finalCta: {
     title: "Ready when your team is.",
     body: "Design in a minute, order from 30 pieces, and we handle the rest.",
@@ -131,6 +136,11 @@ const JA: Texts = {
     title: "薄くて軽い、配りやすい。",
     body: "厚みは数ミリ、1 本数グラム。平らに梱包して数量帯一律の送料でお届け。まとめてもかさばらないので、チームで使うのはもちろん、ファンへの配り物にもちょうどいいサイズです。",
     alt: "平らに積まれた Bonfilet と小さな配送箱",
+  },
+  sns: {
+    lead: "実物のボンフィレットはこちら：",
+    instagram: "Instagram",
+    pinterest: "Pinterest",
   },
   finalCta: {
     title: "チームの準備ができたら、いつでも。",
