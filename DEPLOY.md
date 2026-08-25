@@ -38,9 +38,7 @@ npm run db:migrate:remote
 ```bash
 npx wrangler secret put STRIPE_SECRET_KEY
 npx wrangler secret put STRIPE_WEBHOOK_SECRET
-npx wrangler secret put ADMIN_EMAILS        # カンマ区切り
-npx wrangler secret put ADMIN_SECRET_KEY    # 長いランダム文字列
-npx wrangler secret put ADMIN_PASSWORD      # 管理画面の共通パスワード（必須。未設定だと本番はログイン不可）
+npx wrangler secret put APP_SECRET_KEY      # 仕様書リンクの署名鍵（openssl rand -hex 32）
 ```
 任意: `USD_TO_JPY_RATE`（デフォルト 150）は `wrangler.jsonc` の `vars` に追加。
 
@@ -80,9 +78,8 @@ stripe listen --forward-to localhost:3000/api/webhook
 3. `npm run db:migrate:local` で確認 → `npm run db:migrate:remote`
 
 ## 運用: 配送対象国を増やす
-コード変更なし。`/admin/countries` で対象国の関税タイプ・値・送料を入力して保存すると、その国がデザイナーの配送先に現れる。
-工場から関税の回答をもらったら、その内容を「メモ」に残しておくこと。
+コード変更なし。wrangler CLI で countries に関税・送料を入れると、その国がデザイナーの配送先に現れる。
+コマンド例は `../docs/CLOUDFLARE_SETUP.md` の「普段の運用」を参照。工場の回答は duties_note に残すこと。
 
-## 運用: キャンペーン（非公開URL）
-`/admin/campaigns` で作成。`/c/<slug>` が注文ページになる。`status=open` かつ受付期間内のときだけ表示される。
-価格表・対象国・テーマ（アクセント色/見出し/説明）を個別に上書きできる。
+## 運用: 受注
+受注メール（bonfilet@eidendo.co.jp）内の仕様書リンクを開き、PDF にして工場へ転送する。管理画面は無い。

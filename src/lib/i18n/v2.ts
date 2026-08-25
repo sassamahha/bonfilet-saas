@@ -75,7 +75,6 @@ const EN = {
     checkout: "Continue to payment",
     preparing: "Preparing…",
     noCountries: "No destinations available right now.",
-    campaignClosed: "This order page is closed.",
     rateNote: "Charged in USD at ¥{rate}/USD. Amounts shown are approximate.",
   },
   success: {
@@ -169,7 +168,6 @@ const JA: Texts = {
     checkout: "お支払いへ進む",
     preparing: "準備中…",
     noCountries: "現在ご注文いただける配送先がありません。",
-    campaignClosed: "この注文ページは受付を終了しました。",
     rateNote: "決済は USD（¥{rate}/USD 換算）。表示額は目安です。",
   },
   success: {

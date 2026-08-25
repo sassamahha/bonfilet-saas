@@ -14,17 +14,7 @@ import type { V2Texts } from "@/lib/i18n/v2";
 type Loose = Record<string, any>;
 type Config = { countries: CountryRule[]; tiers: Tier[]; minQty: number; usdJpyRate: number };
 
-export default function Designer({
-  locale,
-  t,
-  campaign,
-  accent,
-}: {
-  locale: string;
-  t: V2Texts["designer"];
-  campaign?: string;
-  accent?: string;
-}) {
+export default function Designer({ locale, t }: { locale: string; t: V2Texts["designer"] }) {
   const search = useSearchParams();
   const canceled = search.get("canceled") === "1";
 
@@ -51,8 +41,7 @@ export default function Designer({
 
   // ---- config
   useEffect(() => {
-    const url = campaign ? `/api/countries?campaign=${encodeURIComponent(campaign)}` : "/api/countries";
-    fetch(url)
+    fetch("/api/countries")
       .then(async (r) => {
         if (!r.ok) throw new Error(((await r.json().catch(() => ({}))) as Loose)?.error ?? "config error");
         return r.json() as Promise<Config>;
@@ -65,7 +54,7 @@ export default function Designer({
         if (first) setCountry(first.code);
       })
       .catch((e) => setCfgError(e.message));
-  }, [campaign, locale]);
+  }, [locale]);
 
   // ---- live preview
   const draw = useCallback(async () => {
@@ -128,7 +117,6 @@ export default function Designer({
           countryCode: rule.code,
           lang: locale,
           draftId: dj.draftId,
-          campaign: campaign ?? "",
         }),
       });
       const rj = (await r.json()) as Loose;
@@ -140,8 +128,6 @@ export default function Designer({
     }
   }
 
-  const accentStyle = accent ? ({ "--accent": accent } as React.CSSProperties) : undefined;
-
   const activeText = side === "front" ? text : backText;
   const setActiveText = side === "front" ? setText : setBackText;
   const activeBg = side === "front" ? bgColor : backBgColor;
@@ -150,7 +136,7 @@ export default function Designer({
   const setActiveFg = side === "front" ? setFontColor : setBackFontColor;
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:gap-12" style={accentStyle}>
+    <div className="grid gap-8 lg:grid-cols-[1.3fr_1fr] lg:gap-12">
       {/* ---- Preview ---- */}
       <section className="lg:sticky lg:top-24 lg:self-start">
         <div className="card overflow-hidden bg-bg-muted p-4 sm:p-8">

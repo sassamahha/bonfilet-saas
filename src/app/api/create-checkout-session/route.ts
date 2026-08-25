@@ -9,7 +9,7 @@ import { getStripe } from "@/lib/stripe";
 import { buildQuote } from "@/lib/quote";
 import { MAX_TEXT_LENGTH, MIN_QTY } from "@/lib/bonfiletPricing";
 import { toCurrencyCode, toStripeAmount, getUsdJpyRate } from "@/lib/currency";
-import { campaignAllowedCountries, campaignTiers, getOpenCampaign, getShippableCountry } from "@/lib/repo";
+import { getShippableCountry } from "@/lib/repo";
 import { resolveBonfiletLocale } from "@/lib/i18n/bonfilet";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,6 @@ export async function POST(req: Request) {
     const countryCode = String(body?.countryCode ?? "").toUpperCase();
     const lang = resolveBonfiletLocale(String(body?.lang ?? "en"));
     const draftId = String(body?.draftId ?? "").trim();
-    const campaignSlug = String(body?.campaign ?? "").trim();
 
     if (!text || text.length > MAX_TEXT_LENGTH) {
       return NextResponse.json({ error: "text invalid" }, { status: 400 });
@@ -40,12 +39,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "backText invalid" }, { status: 400 });
     }
 
-    // キャンペーン
-    const campaign = campaignSlug ? await getOpenCampaign(campaignSlug) : null;
-    if (campaignSlug && !campaign) {
-      return NextResponse.json({ error: "campaign not available" }, { status: 404 });
-    }
-    const minQty = campaign?.minQty ?? MIN_QTY;
+    const minQty = MIN_QTY;
     if (!Number.isFinite(quantityRaw) || quantityRaw < minQty) {
       return NextResponse.json({ error: `quantity must be >= ${minQty}` }, { status: 400 });
     }
@@ -55,17 +49,11 @@ export async function POST(req: Request) {
     if (!rule) {
       return NextResponse.json({ error: "country not shippable" }, { status: 400 });
     }
-    const allowed = campaignAllowedCountries(campaign);
-    if (allowed && !allowed.includes(rule.code)) {
-      return NextResponse.json({ error: "country not allowed for campaign" }, { status: 400 });
-    }
-
     // 見積（JPY）
     const quote = buildQuote({
       quantity: quantityRaw,
       hasBack: enableBack,
       rule,
-      tiers: campaignTiers(campaign),
       minQty,
     });
 
@@ -76,7 +64,7 @@ export async function POST(req: Request) {
 
     const origin = env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || req.headers.get("origin") || "http://localhost:3000";
     const langPrefix = lang === "en" ? "" : `/${lang}`;
-    const cancelPath = campaign ? `/c/${campaign.slug}` : `${langPrefix}/bonfilet`;
+    const cancelPath = `${langPrefix}/bonfilet`;
 
     const stripe = getStripe(env.STRIPE_SECRET_KEY);
 
@@ -145,7 +133,6 @@ export async function POST(req: Request) {
         currency,
         lang,
         draftId,
-        campaignId: campaign?.id ?? "",
       },
     });
 

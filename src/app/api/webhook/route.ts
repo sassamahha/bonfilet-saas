@@ -1,12 +1,51 @@
-// POST /api/webhook — Stripe checkout.session.completed → orders に保存
+// POST /api/webhook — Stripe checkout.session.completed → orders 保存 + 受注メール + 古い PII の自動消去
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { eq } from "drizzle-orm";
+import { eq, lt, and, isNotNull } from "drizzle-orm";
 import { getDb, getEnv, schema } from "@/db";
 import { getStripe, getWebCrypto } from "@/lib/stripe";
 import { newId } from "@/lib/repo";
+import { createSpecToken } from "@/lib/specToken";
+import { sendOrderMail } from "@/lib/orderMail";
+import { getUsdJpyRate } from "@/lib/currency";
 
 export const dynamic = "force-dynamic";
+
+const PII_RETENTION_DAYS = 90;
+
+/** 90日より古い注文の宛先情報を消す（新規注文のたびに実行される） */
+async function purgeOldPii(db: Awaited<ReturnType<typeof getDb>>) {
+  const cutoff = new Date(Date.now() - PII_RETENTION_DAYS * 24 * 60 * 60 * 1000);
+  await db
+    .update(schema.orders)
+    .set({
+      shippingName: null,
+      shippingAddress1: null,
+      shippingAddress2: null,
+      shippingCity: null,
+      shippingState: null,
+      shippingPostal: null,
+      shippingPhone: null,
+      customerEmail: null,
+    })
+    .where(and(lt(schema.orders.createdAt, cutoff), isNotNull(schema.orders.shippingAddress1)));
+  // 7日より古い下書き（未購入プレビュー）は R2 ごと削除
+  const staleCutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const stale = await db.select().from(schema.drafts).where(lt(schema.drafts.createdAt, staleCutoff)).limit(50);
+  if (stale.length > 0) {
+    const { getBucket } = await import("@/db");
+    const bucket = await getBucket();
+    for (const dr of stale) {
+      try {
+        await bucket.delete(dr.frontKey);
+        if (dr.backKey) await bucket.delete(dr.backKey);
+      } catch {
+        /* ignore */
+      }
+      await db.delete(schema.drafts).where(eq(schema.drafts.id, dr.id));
+    }
+  }
+}
 
 export async function POST(req: Request) {
   const env = await getEnv();
@@ -70,9 +109,9 @@ export async function POST(req: Request) {
     }
   }
 
+  const orderId = newId("ord");
   await db.insert(schema.orders).values({
-    id: newId("ord"),
-    campaignId: md.campaignId || null,
+    id: orderId,
     stripeSessionId: session.id,
     status: "PENDING",
     quantity: n("quantity"),
@@ -105,6 +144,27 @@ export async function POST(req: Request) {
     } catch (e) {
       console.warn("[Webhook] draft delete failed", e);
     }
+  }
+
+  // 受注メール（失敗しても注文は成立）
+  try {
+    const order = await db.query.orders.findFirst({ where: eq(schema.orders.id, orderId) });
+    if (order) {
+      const base = env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const token = await createSpecToken(orderId);
+      const specUrl = `${base}/spec/${orderId}?k=${token}`;
+      const rate = getUsdJpyRate(env as unknown as { USD_TO_JPY_RATE?: string });
+      await sendOrderMail(order, specUrl, rate);
+    }
+  } catch (e) {
+    console.error("[Webhook] order mail failed", e);
+  }
+
+  // 古い個人情報の自動消去（失敗しても無視）
+  try {
+    await purgeOldPii(db);
+  } catch (e) {
+    console.warn("[Webhook] purge failed", e);
   }
 
   return NextResponse.json({ received: true });

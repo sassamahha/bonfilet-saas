@@ -20,8 +20,14 @@
   "r2_buckets": [
     { "binding": "ASSETS_BUCKET", "bucket_name": "bonfilet-assets" }
   ],
+  // 受注メール（Email Routing を有効にしたゾーンのアドレスから、検証済み宛先へ）
+  "send_email": [
+    { "name": "SPEC_MAIL", "destination_address": "bonfilet@eidendo.co.jp" }
+  ],
   "vars": {
-    "NEXT_PUBLIC_APP_URL": "https://bonfilet.jp"
+    "NEXT_PUBLIC_APP_URL": "https://bonfilet.jp",
+    "SPEC_MAIL_FROM": "orders@bonfilet.jp",
+    "SPEC_MAIL_TO": "bonfilet@eidendo.co.jp"
   }
-  // Secrets (wrangler secret put): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, ADMIN_EMAILS, ADMIN_SECRET_KEY
+  // Secrets (wrangler secret put): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, APP_SECRET_KEY
 }

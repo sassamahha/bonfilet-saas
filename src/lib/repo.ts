@@ -2,8 +2,7 @@
 import { eq, and, asc, isNotNull } from "drizzle-orm";
 import { getDb, schema } from "@/db";
 import { parseShipping, type CountryRule } from "./quote";
-import { parseTiers } from "./bonfiletPricing";
-import type { Campaign, Country } from "@/db/schema";
+import type { Country } from "@/db/schema";
 
 export function newId(prefix = "") {
   const id = crypto.randomUUID().replace(/-/g, "");
@@ -47,42 +46,4 @@ export async function listAllCountries(): Promise<Country[]> {
     .select()
     .from(schema.countries)
     .orderBy(asc(schema.countries.sortOrder), asc(schema.countries.name));
-}
-
-/** 受付中のキャンペーン（slug）。期間外・非公開は null */
-export async function getOpenCampaign(slug: string): Promise<Campaign | null> {
-  const db = await getDb();
-  const c = await db.query.campaigns.findFirst({ where: eq(schema.campaigns.slug, slug) });
-  if (!c || c.status !== "open") return null;
-  const now = Date.now();
-  if (c.opensAt && c.opensAt.getTime() > now) return null;
-  if (c.closesAt && c.closesAt.getTime() < now) return null;
-  return c;
-}
-
-export function campaignTiers(c: Campaign | null) {
-  return parseTiers(c?.priceTableJson);
-}
-
-export function campaignAllowedCountries(c: Campaign | null): string[] | null {
-  if (!c?.allowedCountriesJson) return null;
-  try {
-    const arr = JSON.parse(c.allowedCountriesJson);
-    return Array.isArray(arr) ? arr.map((s) => String(s).toUpperCase()) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function campaignTheme(c: Campaign | null): {
-  accent?: string;
-  heading?: string;
-  description?: string;
-} {
-  if (!c?.themeJson) return {};
-  try {
-    return JSON.parse(c.themeJson) ?? {};
-  } catch {
-    return {};
-  }
 }

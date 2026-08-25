@@ -32,32 +32,10 @@ export const countries = sqliteTable(
   (t) => [index("countries_enabled_idx").on(t.enabled)]
 );
 
-/** 非公開URL単位のキャンペーン（Comicon など） */
-export const campaigns = sqliteTable("campaigns", {
-  id: text("id").primaryKey(),
-  slug: text("slug").notNull().unique(),
-  name: text("name").notNull(),
-  status: text("status", { enum: ["draft", "open", "closed"] })
-    .notNull()
-    .default("draft"),
-  opensAt: integer("opens_at", { mode: "timestamp" }),
-  closesAt: integer("closes_at", { mode: "timestamp" }),
-  minQty: integer("min_qty"),
-  // null = 標準価格表。[{ upTo: 49, unitJpy: 1100 }, ...]
-  priceTableJson: text("price_table_json"),
-  // null = 全配送対象国。["JP","US"]
-  allowedCountriesJson: text("allowed_countries_json"),
-  // { accent: "#..", heading: "...", description: "..." }
-  themeJson: text("theme_json"),
-  note: text("note"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull().default(now()),
-});
-
 export const orders = sqliteTable(
   "orders",
   {
     id: text("id").primaryKey(),
-    campaignId: text("campaign_id").references(() => campaigns.id),
     stripeSessionId: text("stripe_session_id").notNull().unique(),
     status: text("status", {
       enum: ["PENDING", "IN_PRODUCTION", "QC", "PACKED", "SHIPPED"],
@@ -102,7 +80,6 @@ export const orders = sqliteTable(
   (t) => [
     index("orders_status_idx").on(t.status),
     index("orders_created_idx").on(t.createdAt),
-    index("orders_campaign_idx").on(t.campaignId),
   ]
 );
 
@@ -120,6 +97,5 @@ export const drafts = sqliteTable(
 );
 
 export type Country = typeof countries.$inferSelect;
-export type Campaign = typeof campaigns.$inferSelect;
 export type Order = typeof orders.$inferSelect;
 export type Draft = typeof drafts.$inferSelect;
