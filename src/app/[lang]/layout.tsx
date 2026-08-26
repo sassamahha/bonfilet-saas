@@ -3,8 +3,19 @@
 // Pages under [lang] compose their own Header/Footer.
 // 未定義の lang（/admin など任意のパス）は 404 にする。
 import type { ReactNode } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { BONFILET_LOCALES } from "@/lib/i18n/bonfilet";
+import { BONFILET_LOCALES, resolveBonfiletLocale } from "@/lib/i18n/bonfilet";
+import { buildMetadata } from "@/lib/seo";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}): Promise<Metadata> {
+  const { lang } = await params;
+  return buildMetadata(resolveBonfiletLocale(lang));
+}
 
 export function generateStaticParams() {
   return BONFILET_LOCALES.map((lang) => ({ lang }));

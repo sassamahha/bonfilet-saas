@@ -1,9 +1,9 @@
-// src/lib/bonfiletSpecTemplate.ts
+// src/lib/bonfiletSpecTemplate.ts — 工場向け仕様書（A4 1枚・印刷前提）
 
 export interface SpecData {
   // プレビュー画像
-  frontPreviewImage?: string; // base64 data URL
-  backPreviewImage?: string; // base64 data URL
+  frontPreviewImage?: string; // data URL または URL
+  backPreviewImage?: string;
   // 文字情報
   text: string;
   backText?: string;
@@ -32,10 +32,26 @@ export interface SpecData {
   };
 }
 
+const FONT_LABELS: Record<string, string> = {
+  inter: "Inter",
+  "noto-sans": "Noto Sans JP (Gothic)",
+  "noto-serif": "Noto Serif JP (Mincho)",
+  "kosugi-maru": "Kosugi Maru (Rounded Gothic)",
+  "zen-maru": "Zen Maru Gothic Bold (Rounded, Bold)",
+  mplus: "M PLUS 1p Bold (Gothic, Bold)",
+};
+
+function escapeHtml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 /**
- * 工場向け仕様書のHTMLテンプレートを生成
- * @param data 仕様書データ
- * @param options.showPrintButton Printボタンを表示するか（デフォルト true）
+ * 工場向け仕様書のHTMLテンプレートを生成（A4 1枚に収まるレイアウト）
  */
 export function generateSpecHTML(
   data: SpecData,
@@ -55,18 +71,14 @@ export function generateSpecHTML(
         .join(", ")
     : "";
 
-  // HTMLエスケープ関数
-  function escapeHtml(unsafe: string): string {
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
   const escapedText = escapeHtml(data.text || "");
   const escapedBackText = escapeHtml(data.backText || "");
+  const fontLabel = FONT_LABELS[data.font ?? "inter"] ?? data.font ?? "Inter";
+
+  const colorRow = (label: string, hex?: string) =>
+    hex
+      ? `<tr><td>${label}</td><td class="mono">${hex}</td><td><span class="color-box" style="background-color: ${hex}"></span></td></tr>`
+      : "";
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -75,172 +87,131 @@ export function generateSpecHTML(
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bonfilet Production Specification</title>
   <style>
+    /* 印刷時に背景色（色見本）を落とさない */
+    * {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
     @media print {
-      @page {
-        size: A4;
-        margin: 1cm;
-      }
-      body {
-        margin: 0;
-        padding: 0;
-      }
+      @page { size: A4; margin: 10mm; }
+      body { margin: 0; padding: 0; }
+      .print-button { display: none; }
     }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 210mm;
+      font-family: Arial, "Hiragino Sans", sans-serif;
+      max-width: 190mm;
       margin: 0 auto;
-      padding: 20px;
-      color: #333;
+      padding: 12px;
+      color: #222;
+      font-size: 12px;
+      line-height: 1.45;
     }
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #333;
-      padding-bottom: 10px;
+      font-size: 17px;
+      margin: 0 0 10px;
+      border-bottom: 2px solid #222;
+      padding-bottom: 6px;
     }
     h2 {
-      font-size: 18px;
-      margin-top: 20px;
-      margin-bottom: 10px;
+      font-size: 12px;
+      margin: 0 0 4px;
       color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-    .section {
-      margin-bottom: 20px;
-    }
+    .section { margin-bottom: 10px; }
+    .previews { display: flex; gap: 8px; }
+    .previews figure { flex: 1; margin: 0; }
+    .previews figcaption { font-weight: bold; margin-bottom: 3px; font-size: 11px; }
     .preview-image {
-      max-width: 900px;
       width: 100%;
-      height: auto;
+      max-height: 42mm;
       object-fit: contain;
       border: 1px solid #ddd;
-      margin: 10px 0;
-      background: white;
+      background: #fff;
       display: block;
     }
-    .spec-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 10px 0;
-    }
-    .spec-table th,
-    .spec-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
+    .columns { display: flex; gap: 12px; align-items: flex-start; }
+    .columns > div { flex: 1; }
+    .spec-table { width: 100%; border-collapse: collapse; }
+    .spec-table th, .spec-table td {
+      border: 1px solid #ccc;
+      padding: 4px 6px;
       text-align: left;
+      font-size: 11.5px;
     }
-    .spec-table th {
-      background-color: #f5f5f5;
-      font-weight: bold;
-    }
+    .spec-table th { background-color: #f2f2f2; font-weight: bold; }
+    .mono { font-family: "Courier New", monospace; }
     .color-box {
       display: inline-block;
-      width: 30px;
-      height: 30px;
+      width: 26px;
+      height: 14px;
       border: 1px solid #333;
       vertical-align: middle;
-      margin-left: 10px;
+      border-radius: 2px;
     }
-    .info-row {
-      margin: 8px 0;
-    }
-    .info-label {
+    .qty {
+      font-size: 15px;
       font-weight: bold;
+      border: 2px solid #222;
       display: inline-block;
-      width: 150px;
+      padding: 4px 14px;
+      border-radius: 4px;
     }
+    .info-table td { border: 1px solid #ccc; padding: 4px 6px; font-size: 11.5px; }
+    .info-table td:first-child { background: #f2f2f2; font-weight: bold; width: 70px; }
     .print-button {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background-color: #2563eb;
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 600;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      z-index: 1000;
+      position: fixed; top: 16px; right: 16px;
+      background-color: #2563eb; color: #fff; border: none;
+      padding: 10px 20px; border-radius: 6px; cursor: pointer;
+      font-size: 14px; font-weight: 600; z-index: 1000;
     }
-    .print-button:hover {
-      background-color: #1d4ed8;
-    }
-    @media print {
-      .print-button {
-        display: none;
-      }
-    }
+    .print-button:hover { background-color: #1d4ed8; }
   </style>
 </head>
 <body>
-  ${showPrintButton ? `<button class="print-button" onclick="window.print()">Print</button>` : ""}
+  ${showPrintButton ? `<button class="print-button" onclick="window.print()">Print / PDF</button>` : ""}
   <h1>Bonfilet Production Specification</h1>
 
-  <div class="section">
-    <h2>Preview Images</h2>
-    ${data.frontPreviewImage ? `<div><strong>Front Side:</strong><br><img src="${data.frontPreviewImage}" alt="Front Preview" class="preview-image"></div>` : ""}
-    ${data.backPreviewImage ? `<div style="margin-top: 20px;"><strong>Back Side:</strong><br><img src="${data.backPreviewImage}" alt="Back Preview" class="preview-image"></div>` : ""}
+  <div class="section previews">
+    ${data.frontPreviewImage ? `<figure><figcaption>Front</figcaption><img src="${data.frontPreviewImage}" alt="Front Preview" class="preview-image"></figure>` : ""}
+    ${data.backPreviewImage ? `<figure><figcaption>Back</figcaption><img src="${data.backPreviewImage}" alt="Back Preview" class="preview-image"></figure>` : ""}
   </div>
 
-  <div class="section">
-    <h2>Text Specifications</h2>
-    <table class="spec-table">
-      <tr>
-        <th>Item</th>
-        <th>Value</th>
-      </tr>
-      <tr>
-        <td>Front Text</td>
-        <td>${escapedText || "-"}</td>
-      </tr>
-      ${data.backText ? `<tr><td>Back Text</td><td>${escapedBackText}</td></tr>` : ""}
-    </table>
-  </div>
-
-  <div class="section">
-    <h2>Color Specifications</h2>
-    <table class="spec-table">
-      <tr>
-        <th>Item</th>
-        <th>HEX Code</th>
-        <th>Color</th>
-      </tr>
-      <tr>
-        <td>Front Background</td>
-        <td>${data.bgColor}</td>
-        <td><span class="color-box" style="background-color: ${data.bgColor}"></span></td>
-      </tr>
-      <tr>
-        <td>Front Text Color</td>
-        <td>${data.fontColor}</td>
-        <td><span class="color-box" style="background-color: ${data.fontColor}"></span></td>
-      </tr>
-      ${data.backBgColor ? `<tr><td>Back Background</td><td>${data.backBgColor}</td><td><span class="color-box" style="background-color: ${data.backBgColor}"></span></td></tr>` : ""}
-      ${data.backFontColor ? `<tr><td>Back Text Color</td><td>${data.backFontColor}</td><td><span class="color-box" style="background-color: ${data.backFontColor}"></span></td></tr>` : ""}
-      <tr>
-        <td>Font</td>
-        <td>${data.font === "inter" ? "Inter" : data.font === "noto-sans" ? "Noto Sans" : data.font === "noto-serif" ? "Noto Serif" : data.font || "Inter"}</td>
-        <td>-</td>
-      </tr>
-    </table>
-  </div>
-
-  <div class="section">
-    <h2>Order Information</h2>
-    <div class="info-row">
-      <span class="info-label">Quantity:</span>
-      <span>${data.quantity}</span>
+  <div class="section columns">
+    <div>
+      <h2>Text</h2>
+      <table class="spec-table">
+        <tr><th>Item</th><th>Value</th></tr>
+        <tr><td>Front Text</td><td>${escapedText || "-"}</td></tr>
+        ${data.backText ? `<tr><td>Back Text</td><td>${escapedBackText}</td></tr>` : ""}
+        <tr><td>Font</td><td>${fontLabel}</td></tr>
+      </table>
+      <div style="margin-top: 10px;">
+        <h2>Quantity</h2>
+        <span class="qty">${data.quantity} pcs</span>
+      </div>
+    </div>
+    <div>
+      <h2>Colors</h2>
+      <table class="spec-table">
+        <tr><th>Item</th><th>HEX</th><th>Color</th></tr>
+        ${colorRow("Front Background", data.bgColor)}
+        ${colorRow("Front Text", data.fontColor)}
+        ${colorRow("Back Background", data.backBgColor)}
+        ${colorRow("Back Text", data.backFontColor)}
+      </table>
     </div>
   </div>
 
   <div class="section">
-    <h2>Shipping Information</h2>
-    ${data.shippingName ? `<div class="info-row"><span class="info-label">Name:</span><span>${data.shippingName}</span></div>` : ""}
-    ${data.shippingPhone ? `<div class="info-row"><span class="info-label">Phone:</span><span>${data.shippingPhone}</span></div>` : ""}
-    ${shippingAddressText ? `<div class="info-row"><span class="info-label">Address:</span><span>${shippingAddressText}</span></div>` : ""}
+    <h2>Ship To (FedEx)</h2>
+    <table class="spec-table info-table" style="width: 100%;">
+      ${data.shippingName ? `<tr><td>Name</td><td>${escapeHtml(data.shippingName)}</td></tr>` : ""}
+      ${shippingAddressText ? `<tr><td>Address</td><td>${escapeHtml(shippingAddressText)}</td></tr>` : ""}
+      ${data.shippingPhone ? `<tr><td>Phone</td><td>${escapeHtml(data.shippingPhone)}</td></tr>` : ""}
+    </table>
   </div>
 </body>
 </html>`;
 }
-

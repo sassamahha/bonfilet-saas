@@ -3,11 +3,9 @@ import type { ReactNode } from "react";
 import type { Metadata } from "next";
 import "./globals.css";
 import { inter, notoSansJp, notoSerifJp, kosugiMaru, zenMaruGothic, mPlus1p } from "@/lib/fonts";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Bonfilet — Custom team bands, shipped worldwide",
-  description: "Reversible fabric bands for teams, clubs and events. Design with text and colors; thin enough to ship flat at a flat rate.",
-};
+export const metadata: Metadata = buildMetadata("en");
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

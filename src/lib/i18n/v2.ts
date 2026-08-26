@@ -1,5 +1,10 @@
 // src/lib/i18n/v2.ts — v2 で追加した文言（en をベースに各言語で上書き）
 const EN = {
+  meta: {
+    title: "Bonfilet - One Message, One Thread",
+    description:
+      "Custom reversible fabric bands for teams, clubs and events. Design with your words and colors, from 30 pieces. Thin enough to ship flat worldwide, all costs included.",
+  },
   nav: { design: "Design yours", shipsTo: "Ships to", admin: "Admin" },
   hero: {
     eyebrow: "One Message, One Thread",
@@ -93,6 +98,11 @@ const EN = {
 type Texts = typeof EN;
 
 const JA: Texts = {
+  meta: {
+    title: "Bonfilet - One Message, One Thread",
+    description:
+      "チーム・部活・イベントのためのリバーシブル布バンドをカスタムオーダー。好きな言葉と色で1分でデザイン、30個から注文。薄くて軽いから送料は数量帯一律、諸費用込みでお届けします。",
+  },
   nav: { design: "デザインする", shipsTo: "配送対象国", admin: "管理" },
   hero: {
     eyebrow: "One Message, One Thread",
