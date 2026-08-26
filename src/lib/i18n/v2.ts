@@ -99,7 +99,7 @@ type Texts = typeof EN;
 
 const JA: Texts = {
   meta: {
-    title: "Bonfilet - One Message, One Thread",
+    title: "ボンフィレット - ひとつのバンドに、あなたの言葉と色を。",
     description:
       "チーム・部活・イベントのためのリバーシブル布バンドをカスタムオーダー。好きな言葉と色で1分でデザイン、30個から注文。薄くて軽いから送料は数量帯一律、諸費用込みでお届けします。",
   },

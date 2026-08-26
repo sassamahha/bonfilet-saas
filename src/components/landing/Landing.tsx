@@ -14,8 +14,27 @@ export default function Landing({ locale, countries }: Props) {
   const t = getV2Texts(locale);
   const designerHref = localePath(locale, "/bonfilet");
 
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "Bonfilet",
+    url: "https://bonfilet.jp",
+    logo: "https://bonfilet.jp/icon.svg",
+    slogan: "One Message, One Thread",
+    parentOrganization: { "@type": "Organization", name: "Eidendo, Inc.", url: "https://eidendo.co.jp/" },
+    sameAs: [
+      "https://eidendo.co.jp/",
+      "https://www.instagram.com/bonfilet.world",
+      "https://jp.pinterest.com/eidendo_oem/bonfilet/",
+    ],
+  };
+
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+      />
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-5 pb-16 pt-14 sm:px-8 sm:pb-24 sm:pt-24">
         <div className="grid items-center gap-10 lg:grid-cols-12 lg:gap-16">

@@ -7,6 +7,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BONFILET_LOCALES, resolveBonfiletLocale } from "@/lib/i18n/bonfilet";
 import { buildMetadata } from "@/lib/seo";
+import SetHtmlLang from "@/components/SetHtmlLang";
 
 export async function generateMetadata({
   params,
@@ -30,5 +31,10 @@ export default async function LangLayout({
 }) {
   const { lang } = await params;
   if (!(BONFILET_LOCALES as readonly string[]).includes(lang)) notFound();
-  return <>{children}</>;
+  return (
+    <>
+      <SetHtmlLang lang={lang} />
+      {children}
+    </>
+  );
 }
