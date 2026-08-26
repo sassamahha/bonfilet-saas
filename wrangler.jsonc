@@ -1,33 +1,44 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "bonfilet",
-  "main": ".open-next/worker.js",
-  "compatibility_date": "2026-08-01",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
-  "assets": {
-    "directory": ".open-next/assets",
-    "binding": "ASSETS"
-  },
-  "observability": { "enabled": true },
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "bonfilet",
-      "database_id": "REPLACE_WITH_D1_ID",
-      "migrations_dir": "drizzle"
-    }
-  ],
-  "r2_buckets": [
-    { "binding": "ASSETS_BUCKET", "bucket_name": "bonfilet-assets" }
-  ],
-  // 受注メール（Email Routing を有効にしたゾーンのアドレスから、検証済み宛先へ）
-  "send_email": [
-    { "name": "SPEC_MAIL", "destination_address": "bonfilet@eidendo.co.jp" }
-  ],
-  "vars": {
-    "NEXT_PUBLIC_APP_URL": "https://bonfilet.jp",
-    "SPEC_MAIL_FROM": "orders@bonfilet.jp",
-    "SPEC_MAIL_TO": "bonfilet@eidendo.co.jp"
-  }
-  // Secrets (wrangler secret put): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, APP_SECRET_KEY
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "bonfilet",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-08-01",
+	"compatibility_flags": [
+		"nodejs_compat",
+		"global_fetch_strictly_public"
+	],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "bonfilet",
+			"database_id": "51140dd0-f7b8-4c46-a07d-01560da63641",
+			"migrations_dir": "drizzle"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "ASSETS_BUCKET",
+			"bucket_name": "bonfilet-assets"
+		}
+	],
+	// 受注メール（Email Routing を有効にしたゾーンのアドレスから、検証済み宛先へ）
+	"send_email": [
+		{
+			"name": "SPEC_MAIL",
+			"destination_address": "bonfilet@eidendo.co.jp"
+		}
+	],
+	"vars": {
+		"NEXT_PUBLIC_APP_URL": "https://bonfilet.jp",
+		"SPEC_MAIL_FROM": "orders@bonfilet.jp",
+		"SPEC_MAIL_TO": "bonfilet@eidendo.co.jp"
+	}
+	// Secrets (wrangler secret put): STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, APP_SECRET_KEY
 }
