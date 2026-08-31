@@ -4,7 +4,7 @@ import { getV2Texts } from "./i18n/v2";
 import { BONFILET_LOCALES } from "./i18n/bonfilet";
 
 const SITE_URL = "https://bonfilet.jp";
-const OG_IMAGE = "/images/connect01.jpg";
+const OG_IMAGE = "/images/og.jpg";
 
 export function buildMetadata(locale: string, path = ""): Metadata {
   const t = getV2Texts(locale).meta;
@@ -26,7 +26,7 @@ export function buildMetadata(locale: string, path = ""): Metadata {
       description: t.description,
       url: canonical,
       locale: locale === "ja" ? "ja_JP" : "en_US",
-      images: [{ url: OG_IMAGE, width: 1184, height: 864, alt: "Bonfilet reversible fabric bands" }],
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Bonfilet — One Message, One Thread" }],
     },
     twitter: {
       card: "summary_large_image",

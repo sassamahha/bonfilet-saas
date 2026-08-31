@@ -30,8 +30,8 @@
 - セットアップ/運用: `../docs/CLOUDFLARE_SETUP.md`　設計判断: `../docs/REDESIGN_2026.md`
 - 事業ログは /bizlog スキル（vault 02_Fact/Bonfilet/log/）
 
-## 既知の残タスク（2026-08-31 時点）
-- OGP 専用画像（1200×630）作成
-- 法務ページの v2 デザイン化（現在 v1 の slate スタイル）
-- Vercel / Supabase プロジェクトの削除（ローンチ 1〜2 週間後に）+ Stripe 旧キーのローテーション
+## 既知の残タスク（2026-08-31 更新）
+- ~~OGP 専用画像~~ 完了（public/images/og.jpg、生成スクリプトはこの日の git log 参照）
+- ~~法務ページの v2 デザイン化~~ 完了
+- Vercel / Supabase プロジェクトの削除（2026-09-09 頃、問題なければ）+ Stripe 旧キーのローテーション
 - Search Console 登録・サイトマップ送信（ユーザー操作）
